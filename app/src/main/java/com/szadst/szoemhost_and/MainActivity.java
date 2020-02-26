@@ -1,6 +1,6 @@
 package com.szadst.szoemhost_and;
 
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
@@ -544,7 +544,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         case KeyEvent.KEYCODE_BACK:
             if (event.getRepeatCount() == 0) {
                 if (m_btnCancel.isEnabled()) {
-                    Toast toast = Toast.makeText(getApplicationContext(), "Please cancel your command first", 5);
+                    Toast toast = Toast.makeText(getApplicationContext(), "Please cancel your command first", Toast.LENGTH_SHORT);
                     toast.show();
                     return true;
                 }
