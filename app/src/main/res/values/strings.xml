@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">SZOEMHost_And</string>
+
+    <string-array name="FpCount">
+        <item>1700</item>
+        <item>2000</item>
+        <item>3000</item>
+    </string-array>
+
+    <string-array name="baud_rate">
+        <item>9600</item>
+        <item>19200</item>
+        <item>38400</item>
+        <item>57600</item>
+        <item>115200</item>
+    </string-array>
+</resources>
