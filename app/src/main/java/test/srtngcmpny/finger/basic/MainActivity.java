@@ -1,4 +1,4 @@
-package com.szadst.szoemhost_and;
+package test.srtngcmpny.finger.basic;
 
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;

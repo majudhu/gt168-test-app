@@ -4,11 +4,11 @@ android {
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
     defaultConfig {
-        applicationId "com.szadst.szoemhost_and"
+        applicationId 'test.srtngcmpny.finger.basic'
         minSdkVersion 19
         targetSdkVersion 29
-        versionCode 12
-        versionName '2.4'
+        versionCode 1
+        versionName '1'
     }
     buildTypes {
         release {
