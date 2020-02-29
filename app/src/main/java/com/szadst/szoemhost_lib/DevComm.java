@@ -16,12 +16,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-import cn.wch.ch34xuartdriver.CH34xUARTDriver;
 import android_serialport_api.ComBean;
 import android_serialport_api.SerialHelper;
 import android_serialport_api.SerialPortFinder;
 
-import com.szadst.szoemhost_lib.LibDebugManage;
+import cn.wch.ch34xuartdriver.CH34xUARTDriver;
+//import com.szadst.szoemhost_lib.LibDebugManage;
 
 public class DevComm {
 
