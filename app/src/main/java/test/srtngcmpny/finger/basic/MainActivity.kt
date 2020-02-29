@@ -8,6 +8,7 @@ import android.widget.*
 import android.widget.AdapterView.OnItemSelectedListener
 import androidx.appcompat.app.AppCompatActivity
 import com.szadst.szoemhost_lib.DevComm
+import com.szadst.szoemhost_lib.GD_MAX_RECORD_COUNT
 import com.szadst.szoemhost_lib.SZOEMHost_Lib
 
 class MainActivity : AppCompatActivity(), View.OnClickListener {
@@ -115,9 +116,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         m_btnVerifyImage!!.setOnClickListener(this)
         m_btnIdentifyImage!!.setOnClickListener(this)
         if (m_szHost == null) {
-            m_szHost = SZOEMHost_Lib(this, m_txtStatus, m_FpImageViewer, runEnableCtrl, m_spDevice)
+            m_szHost = SZOEMHost_Lib(this, m_txtStatus!!, m_FpImageViewer!!, runEnableCtrl, m_spDevice!!)
         } else {
-            m_szHost!!.SZOEMHost_Lib_Init(this, m_txtStatus, m_FpImageViewer, runEnableCtrl, m_spDevice)
+            m_szHost!!.SZOEMHost_Lib_Init(this, m_txtStatus!!, m_FpImageViewer!!, runEnableCtrl, m_spDevice!!)
         }
     }
 
@@ -152,7 +153,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     fun OnOpenDeviceBtn() {
-        if (m_szHost!!.OpenDevice(m_szDevice, m_nBaudrate) == 0) {
+        if (m_szHost!!.OpenDevice(m_szDevice!!, m_nBaudrate) == 0) {
             EnableCtrl(true)
             m_btnOpenDevice!!.isEnabled = false
             m_btnCloseDevice!!.isEnabled = true
@@ -390,7 +391,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         try {
             m_nUserID = str.toInt()
         } catch (e: NumberFormatException) {
-            m_txtStatus!!.text = String.format("Please input correct user id(1~%d)", DevComm.GD_MAX_RECORD_COUNT.toShort())
+            m_txtStatus!!.text = String.format("Please input correct user id(1~%d)", GD_MAX_RECORD_COUNT.toShort())
             return -1
         }
         return m_nUserID
