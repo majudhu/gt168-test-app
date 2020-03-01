@@ -35,8 +35,8 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
 
     private val m_IConnectionHandler: IUsbConnState = object : IUsbConnState {
         override fun onUsbConnected() {
-            if (m_devComm!!.Run_TestConnection() == ERR_SUCCESS) {
-                if (m_devComm!!.Run_GetDeviceInfo() == ERR_SUCCESS) {
+            if (m_devComm!!.runTestConnection() == ERR_SUCCESS) {
+                if (m_devComm!!.runGetDeviceInfo() == ERR_SUCCESS) {
                     //        			EnableCtrl(true);
 //		            m_btnOpenDevice.setEnabled(false);
 //		            m_btnCloseDevice.setEnabled(true);
@@ -76,7 +76,7 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
         if (m_devComm == null) {
             m_devComm = DevComm(parentActivity, m_IConnectionHandler, p_spDevice)
         } else {
-            m_devComm!!.DevComm_Init(parentActivity, m_IConnectionHandler, p_spDevice)
+            m_devComm!!.devCommInit(p_spDevice)
         }
         if (m_binImage == null) m_binImage = ByteArray(1024 * 100)
         if (m_bmpImage == null) m_bmpImage = ByteArray(1024 * 100)
@@ -96,14 +96,14 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
 	*/
     fun OpenDevice(p_szDevice: String, p_nBaudrate: Int): Int {
         if (m_devComm != null) {
-            if (!m_devComm!!.IsInit()) {
-                if (!m_devComm!!.OpenComm(p_szDevice, p_nBaudrate)) {
+            if (!m_devComm!!.isInit()) {
+                if (!m_devComm!!.openComm(p_szDevice, p_nBaudrate)) {
                     m_txtStatus.text = "Failed init device!"
                     return 1
                 }
             }
-            if (m_devComm!!.Run_TestConnection() == ERR_SUCCESS) {
-                if (m_devComm!!.Run_GetDeviceInfo() == ERR_SUCCESS) {
+            if (m_devComm!!.runTestConnection() == ERR_SUCCESS) {
+                if (m_devComm!!.runGetDeviceInfo() == ERR_SUCCESS) {
                     m_txtStatus.text = "Open Device Success"
                     return 0
                 } else {
@@ -112,7 +112,7 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
                 }
             } else {
                 m_txtStatus.text = "Can not connect to device!"
-                m_devComm!!.CloseComm()
+                m_devComm!!.closeComm()
                 return 1
             }
         }
@@ -120,7 +120,7 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
     }
 
     fun CloseDevice(): Int {
-        m_devComm!!.CloseComm()
+        m_devComm!!.closeComm()
         return 0
     }
 
@@ -133,25 +133,25 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
             var w_blRet = false
             var w_wPrefix: Short = 0
             m_bThreadWork = true
-            w_wPrefix = (m_devComm!!.m_abyPacket[1].toInt() shl 8 and 0x0000FF00 or (m_devComm!!.m_abyPacket[0].toInt() and 0x000000FF)).toShort()
+            w_wPrefix = (m_devComm!!.mAbyPacket[1].toInt() shl 8 and 0x0000FF00 or (m_devComm!!.mAbyPacket[0].toInt() and 0x000000FF)).toShort()
             if (w_wPrefix == CMD_PREFIX_CODE.toShort()) {
                 if (m_dwCode != CMD_FP_CANCEL_CODE) {
 //                    if (m_devComm!!.m_nConnected.toInt() == 1 || m_devComm!!.m_nConnected.toInt() == 3) w_blRet = m_devComm!!.UART_SendCommand(m_dwCode.toShort()) else
-                    if (m_devComm!!.m_nConnected.toInt() == 2) w_blRet = m_devComm!!.USB_SendPacket(m_dwCode.toShort())
+                    if (m_devComm!!.mNconnected.toInt() == 2) w_blRet = m_devComm!!.usbSendPacket(m_dwCode.toShort())
                 } else {
 //                    if (m_devComm!!.m_nConnected.toInt() == 1 || m_devComm!!.m_nConnected.toInt() == 3) w_blRet = m_devComm!!.UART_ReceiveAck(m_dwCode.toShort(), true) else
-                    if (m_devComm!!.m_nConnected.toInt() == 2) w_blRet = m_devComm!!.USB_ReceiveAck(m_dwCode.toShort())
+                    if (m_devComm!!.mNconnected.toInt() == 2) w_blRet = m_devComm!!.usbReceiveAck(m_dwCode.toShort())
                 }
             } else if (w_wPrefix == CMD_DATA_PREFIX_CODE.toShort()) {
 //                if (m_devComm!!.m_nConnected.toInt() == 1 || m_devComm!!.m_nConnected.toInt() == 3) w_blRet = m_devComm!!.UART_SendDataPacket(m_dwCode.toShort()) else
-                if (m_devComm!!.m_nConnected.toInt() == 2) w_blRet = m_devComm!!.USB_SendDataPacket(m_dwCode.toShort())
+                if (m_devComm!!.mNconnected.toInt() == 2) w_blRet = m_devComm!!.usbSendDataPacket(m_dwCode.toShort())
             } else {
                 if (m_dwCode != CMD_FEATURE_OF_CAPTURED_FP_CODE) {
 //                    if (m_devComm!!.m_nConnected.toInt() == 1 || m_devComm!!.m_nConnected.toInt() == 3) w_blRet = m_devComm!!.UART_ReceiveAck(m_dwCode.toShort(), true) else
-                    if (m_devComm!!.m_nConnected.toInt() == 2) w_blRet = m_devComm!!.USB_ReceiveAck(m_dwCode.toShort())
+                    if (m_devComm!!.mNconnected.toInt() == 2) w_blRet = m_devComm!!.usbReceiveAck(m_dwCode.toShort())
                 } else {
 //                    if (m_devComm!!.m_nConnected.toInt() == 1 || m_devComm!!.m_nConnected.toInt() == 3) w_blRet = m_devComm!!.UART_ReceiveDataPacket(CMD_FEATURE_OF_CAPTURED_FP_CODE.toShort()) else
-                    if (m_devComm!!.m_nConnected.toInt() == 2) w_blRet = m_devComm!!.USB_ReceiveDataPacket(CMD_FEATURE_OF_CAPTURED_FP_CODE.toShort())
+                    if (m_devComm!!.mNconnected.toInt() == 2) w_blRet = m_devComm!!.usbReceiveDataPacket(CMD_FEATURE_OF_CAPTURED_FP_CODE.toShort())
                 }
             }
             m_bSendResult = w_blRet
@@ -161,17 +161,17 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
     }
 
     private fun Run_Command_NP(p_wCmd: Short) { //. Assemble command packet
-        m_devComm!!.InitPacket(p_wCmd, true)
-        m_devComm!!.AddCheckSum(true)
+        m_devComm!!.initPacket(p_wCmd, true)
+        m_devComm!!.addCheckSum(true)
         m_dwCode = p_wCmd.toInt()
         StartSendThread()
     }
 
     private fun Run_Command_1P(p_wCmd: Short, p_wData: Short) { //. Assemble command packet
-        m_devComm!!.InitPacket(p_wCmd, true)
-        m_devComm!!.SetDataLen(0x0002.toShort())
-        m_devComm!!.SetCmdData(p_wData, true)
-        m_devComm!!.AddCheckSum(true)
+        m_devComm!!.initPacket(p_wCmd, true)
+        m_devComm!!.setDataLen(0x0002.toShort())
+        m_devComm!!.setCmdData(p_wData, true)
+        m_devComm!!.addCheckSum(true)
         m_dwCode = p_wCmd.toInt()
         StartSendThread()
     }
@@ -269,43 +269,43 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
         //. Check inputed template no
         if (CheckInputTemplateNo(p_nTmpNo) == false) return 1
         w_nTemplateNo = p_nTmpNo
-        m_devComm!!.memset(m_TemplateData, 0.toByte(), GD_MAX_RECORD_SIZE)
+        DevComm.memSet(m_TemplateData, 0.toByte(), GD_MAX_RECORD_SIZE)
         //. Assemble command packet
-        m_devComm!!.InitPacket(CMD_READ_TEMPLATE_CODE.toShort(), true)
-        m_devComm!!.SetDataLen(0x0002.toShort())
-        m_devComm!!.SetCmdData(w_nTemplateNo.toShort(), true)
-        m_devComm!!.AddCheckSum(true)
+        m_devComm!!.initPacket(CMD_READ_TEMPLATE_CODE.toShort(), true)
+        m_devComm!!.setDataLen(0x0002.toShort())
+        m_devComm!!.setCmdData(w_nTemplateNo.toShort(), true)
+        m_devComm!!.addCheckSum(true)
         m_dwCode = CMD_READ_TEMPLATE_CODE
-        w_blRet = m_devComm!!.Send_Command(CMD_READ_TEMPLATE_CODE.toShort())
+        w_blRet = m_devComm!!.sendCommand(CMD_READ_TEMPLATE_CODE.toShort())
         if (w_blRet == false) {
             CloseDevice()
             return 1
         }
-        if (m_devComm!!.GetRetCode() != ERR_SUCCESS.toShort()) {
+        if (m_devComm!!.getRetCode() != ERR_SUCCESS.toShort()) {
             DisplayResponsePacket(CMD_READ_TEMPLATE_CODE.toShort())
             return 1
         }
-        if (m_devComm!!.GetCmdData(false).toInt() == GD_TEMPLATE_SIZE) {
-            w_blRet = m_devComm!!.Receive_DataPacket(CMD_READ_TEMPLATE_CODE.toShort())
+        if (m_devComm!!.getCmdData(false).toInt() == GD_TEMPLATE_SIZE) {
+            w_blRet = m_devComm!!.receiveDataPacket(CMD_READ_TEMPLATE_CODE.toShort())
             w_nLen = GD_TEMPLATE_SIZE
-            System.arraycopy(m_devComm!!.m_abyPacket, 10, m_TemplateData, 0, GD_TEMPLATE_SIZE)
+            System.arraycopy(m_devComm!!.mAbyPacket, 10, m_TemplateData, 0, GD_TEMPLATE_SIZE)
         } else {
-            w_nLen = m_devComm!!.GetCmdData(false).toInt()
+            w_nLen = m_devComm!!.getCmdData(false).toInt()
             w_nBufOffset = 0
             while (true) {
-                w_blRet = m_devComm!!.Receive_DataPacket(CMD_READ_TEMPLATE_CODE.toShort())
+                w_blRet = m_devComm!!.receiveDataPacket(CMD_READ_TEMPLATE_CODE.toShort())
                 if (w_blRet == false) {
                     break
                 } else {
-                    if (m_devComm!!.GetRetCode().toInt() == ERR_SUCCESS) {
-                        if (m_devComm!!.GetDataLen() > DATA_SPLIT_UNIT + 4) {
-                            m_devComm!!.SetCmdData(ERR_FAIL.toShort(), true)
-                            m_devComm!!.SetCmdData(ERR_INVALID_PARAM.toShort(), false)
+                    if (m_devComm!!.getRetCode().toInt() == ERR_SUCCESS) {
+                        if (m_devComm!!.getDataLen() > DATA_SPLIT_UNIT + 4) {
+                            m_devComm!!.setCmdData(ERR_FAIL.toShort(), true)
+                            m_devComm!!.setCmdData(ERR_INVALID_PARAM.toShort(), false)
                             w_blRet = false
                             break
                         } else {
-                            System.arraycopy(m_devComm!!.m_abyPacket, 10, m_TemplateData, w_nBufOffset, m_devComm!!.GetDataLen() - 4)
-                            w_nBufOffset = w_nBufOffset + (m_devComm!!.GetDataLen() - 4)
+                            System.arraycopy(m_devComm!!.mAbyPacket, 10, m_TemplateData, w_nBufOffset, m_devComm!!.getDataLen() - 4)
+                            w_nBufOffset = w_nBufOffset + (m_devComm!!.getDataLen() - 4)
                             if (w_nBufOffset == w_nLen) {
                                 break
                             }
@@ -338,28 +338,28 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
         }
         w_nTemplateNo = p_nTmpNo
         //. Assemble command packet
-        m_devComm!!.InitPacket(CMD_WRITE_TEMPLATE_CODE.toShort(), true)
-        m_devComm!!.SetDataLen(0x0002.toShort())
-        m_devComm!!.SetCmdData(m_nTemplateSize.toShort(), true)
-        m_devComm!!.AddCheckSum(true)
+        m_devComm!!.initPacket(CMD_WRITE_TEMPLATE_CODE.toShort(), true)
+        m_devComm!!.setDataLen(0x0002.toShort())
+        m_devComm!!.setCmdData(m_nTemplateSize.toShort(), true)
+        m_devComm!!.addCheckSum(true)
         //. Send command packet to target
-        w_blRet = m_devComm!!.Send_Command(CMD_WRITE_TEMPLATE_CODE.toShort())
+        w_blRet = m_devComm!!.sendCommand(CMD_WRITE_TEMPLATE_CODE.toShort())
         if (w_blRet == false) {
             CloseDevice()
             return 1
         }
-        if (m_devComm!!.GetRetCode() != ERR_SUCCESS.toShort()) {
+        if (m_devComm!!.getRetCode() != ERR_SUCCESS.toShort()) {
             DisplayResponsePacket(CMD_WRITE_TEMPLATE_CODE.toShort())
             return 1
         }
         if (m_nTemplateSize == GD_RECORD_SIZE || m_nTemplateSize == ID_USER_TEMPLATE_SIZE) { //. Assemble data packet
-            m_devComm!!.InitPacket(CMD_WRITE_TEMPLATE_CODE.toShort(), false)
-            m_devComm!!.SetDataLen((m_nTemplateSize + 2).toShort())
-            m_devComm!!.SetCmdData(w_nTemplateNo.toShort(), true)
-            System.arraycopy(m_TemplateData, 0, m_devComm!!.m_abyPacket, 8, m_nTemplateSize)
-            m_devComm!!.AddCheckSum(false)
+            m_devComm!!.initPacket(CMD_WRITE_TEMPLATE_CODE.toShort(), false)
+            m_devComm!!.setDataLen((m_nTemplateSize + 2).toShort())
+            m_devComm!!.setCmdData(w_nTemplateNo.toShort(), true)
+            System.arraycopy(m_TemplateData, 0, m_devComm!!.mAbyPacket, 8, m_nTemplateSize)
+            m_devComm!!.addCheckSum(false)
             //. Send data packet to target
-            w_blRet = m_devComm!!.Send_DataPacket(CMD_WRITE_TEMPLATE_CODE.toShort())
+            w_blRet = m_devComm!!.sendDataPacket(CMD_WRITE_TEMPLATE_CODE.toShort())
             if (w_blRet == false) {
                 return 2
             }
@@ -369,28 +369,28 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
             i = 0
             while (i < n) {
                 //. Assemble data packet
-                m_devComm!!.InitPacket(CMD_WRITE_TEMPLATE_CODE.toShort(), false)
-                m_devComm!!.SetDataLen((DATA_SPLIT_UNIT + 4).toShort())
-                m_devComm!!.SetCmdData(w_nTemplateNo.toShort(), true)
-                m_devComm!!.SetCmdData(DATA_SPLIT_UNIT.toShort(), false)
-                System.arraycopy(m_TemplateData, i * DATA_SPLIT_UNIT, m_devComm!!.m_abyPacket, 10, DATA_SPLIT_UNIT)
-                m_devComm!!.AddCheckSum(false)
+                m_devComm!!.initPacket(CMD_WRITE_TEMPLATE_CODE.toShort(), false)
+                m_devComm!!.setDataLen((DATA_SPLIT_UNIT + 4).toShort())
+                m_devComm!!.setCmdData(w_nTemplateNo.toShort(), true)
+                m_devComm!!.setCmdData(DATA_SPLIT_UNIT.toShort(), false)
+                System.arraycopy(m_TemplateData, i * DATA_SPLIT_UNIT, m_devComm!!.mAbyPacket, 10, DATA_SPLIT_UNIT)
+                m_devComm!!.addCheckSum(false)
                 //. Send data packet to target
-                w_blRet = m_devComm!!.Send_DataPacket(CMD_WRITE_TEMPLATE_CODE.toShort())
+                w_blRet = m_devComm!!.sendDataPacket(CMD_WRITE_TEMPLATE_CODE.toShort())
                 if (w_blRet == false) {
                     return 2
                 }
                 i++
             }
             if (r > 0) {
-                m_devComm!!.InitPacket(CMD_WRITE_TEMPLATE_CODE.toShort(), false)
-                m_devComm!!.SetDataLen((r + 4).toShort())
-                m_devComm!!.SetCmdData(w_nTemplateNo.toShort(), true)
-                m_devComm!!.SetCmdData((r and 0xFFFF).toShort(), false)
-                System.arraycopy(m_TemplateData, i * DATA_SPLIT_UNIT, m_devComm!!.m_abyPacket, 10, r)
-                m_devComm!!.AddCheckSum(false)
+                m_devComm!!.initPacket(CMD_WRITE_TEMPLATE_CODE.toShort(), false)
+                m_devComm!!.setDataLen((r + 4).toShort())
+                m_devComm!!.setCmdData(w_nTemplateNo.toShort(), true)
+                m_devComm!!.setCmdData((r and 0xFFFF).toShort(), false)
+                System.arraycopy(m_TemplateData, i * DATA_SPLIT_UNIT, m_devComm!!.mAbyPacket, 10, r)
+                m_devComm!!.addCheckSum(false)
                 //. Send data packet to target
-                w_blRet = m_devComm!!.Send_DataPacket(CMD_WRITE_TEMPLATE_CODE.toShort())
+                w_blRet = m_devComm!!.sendDataPacket(CMD_WRITE_TEMPLATE_CODE.toShort())
                 if (w_blRet == false) {
                     return 2
                 }
@@ -406,15 +406,15 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
         val w_nIndex = 0
         val w_nValue = 0
         m_bParamGet = if (w_nMode == 0) true else false
-        m_devComm!!.InitPacket(CMD_SET_PARAMETER_CODE.toShort(), true)
-        m_devComm!!.SetDataLen(0x0006.toShort())
-        m_devComm!!.m_abyPacket[6] = (w_nMode and 0xFF).toByte()
-        m_devComm!!.m_abyPacket[7] = (w_nIndex and 0xFF).toByte()
-        m_devComm!!.m_abyPacket[8] = (w_nValue and 0xFF).toByte()
-        m_devComm!!.m_abyPacket[9] = (w_nValue and 0x0000FF00 shr 8 and 0xFF).toByte()
-        m_devComm!!.m_abyPacket[10] = (w_nValue and 0x00FF0000 shr 16 and 0xFF).toByte()
-        m_devComm!!.m_abyPacket[11] = (w_nValue and -0x1000000 shr 24 and 0xFF).toByte()
-        m_devComm!!.AddCheckSum(true)
+        m_devComm!!.initPacket(CMD_SET_PARAMETER_CODE.toShort(), true)
+        m_devComm!!.setDataLen(0x0006.toShort())
+        m_devComm!!.mAbyPacket[6] = (w_nMode and 0xFF).toByte()
+        m_devComm!!.mAbyPacket[7] = (w_nIndex and 0xFF).toByte()
+        m_devComm!!.mAbyPacket[8] = (w_nValue and 0xFF).toByte()
+        m_devComm!!.mAbyPacket[9] = (w_nValue and 0x0000FF00 shr 8 and 0xFF).toByte()
+        m_devComm!!.mAbyPacket[10] = (w_nValue and 0x00FF0000 shr 16 and 0xFF).toByte()
+        m_devComm!!.mAbyPacket[11] = (w_nValue and -0x1000000 shr 24 and 0xFF).toByte()
+        m_devComm!!.addCheckSum(true)
         m_dwCode = CMD_SET_PARAMETER_CODE
         StartSendThread()
         return 0
@@ -439,22 +439,22 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
             m_txtStatus.text = m_strPost
             return 1
         }
-        m_devComm!!.InitPacket(CMD_SET_DEVPASS_CODE.toShort(), true)
-        m_devComm!!.SetDataLen(0x000E.toShort()) // 14
+        m_devComm!!.initPacket(CMD_SET_DEVPASS_CODE.toShort(), true)
+        m_devComm!!.setDataLen(0x000E.toShort()) // 14
         if (p_szPassword.length == 0) {
             w_nI = 0
             while (w_nI < 14) {
-                m_devComm!!.m_abyPacket[6 + w_nI] = 0x00
+                m_devComm!!.mAbyPacket[6 + w_nI] = 0x00
                 w_nI++
             }
         } else {
             w_nI = 0
             while (w_nI < 14) {
-                m_devComm!!.m_abyPacket[6 + w_nI] = (p_szPassword[w_nI].toInt() and 0xFF).toByte()
+                m_devComm!!.mAbyPacket[6 + w_nI] = (p_szPassword[w_nI].toInt() and 0xFF).toByte()
                 w_nI++
             }
         }
-        m_devComm!!.AddCheckSum(true)
+        m_devComm!!.addCheckSum(true)
         m_dwCode = CMD_SET_DEVPASS_CODE
         StartSendThread()
         return 0
@@ -467,15 +467,15 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
             m_txtStatus.text = m_strPost
             return 1
         }
-        m_devComm!!.InitPacket(CMD_VERIFY_DEVPASS_CODE.toShort(), true)
-        m_devComm!!.SetDataLen(0x000E.toShort()) // 14
+        m_devComm!!.initPacket(CMD_VERIFY_DEVPASS_CODE.toShort(), true)
+        m_devComm!!.setDataLen(0x000E.toShort()) // 14
         w_nI = 0
         while (w_nI < 14) {
-            m_devComm!!.m_abyPacket[6 + w_nI] = (p_szPassword[w_nI].toInt() and 0xFF).toByte()
+            m_devComm!!.mAbyPacket[6 + w_nI] = (p_szPassword[w_nI].toInt() and 0xFF).toByte()
             w_nI++
         }
         //    	System.arraycopy(m_editDevPassword.toString().toCharArray(), 0, m_devComm.m_abyPacket, 6, 14);
-        m_devComm!!.AddCheckSum(true)
+        m_devComm!!.addCheckSum(true)
         m_dwCode = CMD_VERIFY_DEVPASS_CODE
         StartSendThread()
         return 0
@@ -505,16 +505,16 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
         {
             var w_bRet: Boolean
             //. Init Packet
-            m_devComm!!.InitPacket2(CMD_FP_CANCEL_CODE.toShort(), true)
-            m_devComm!!.SetDataLen2(0x00.toShort())
-            m_devComm!!.AddCheckSum2(true)
+            m_devComm!!.initPacket2(CMD_FP_CANCEL_CODE.toShort(), true)
+            m_devComm!!.setDataLen2(0x00.toShort())
+            m_devComm!!.addCheckSum2(true)
             //. Send Packet
             w_bRet = false
 //            if (m_devComm!!.m_nConnected.toInt() == 1 || m_devComm!!.m_nConnected.toInt() == 3) {
 //                w_bRet = m_devComm!!.UART_SendCommand2(CMD_FP_CANCEL_CODE.toShort())
 //            } else
-            if (m_devComm!!.m_nConnected.toInt() == 2) {
-                w_bRet = m_devComm!!.USB_SendPacket2(CMD_FP_CANCEL_CODE.toShort())
+            if (m_devComm!!.mNconnected.toInt() == 2) {
+                w_bRet = m_devComm!!.usbSendPacket2()
             }
             if (w_bRet != true) {
                 m_strPost = "Result : Cancel Send Failed\r\n"
@@ -529,8 +529,8 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
 //            if (m_devComm!!.m_nConnected.toInt() == 1 || m_devComm!!.m_nConnected.toInt() == 3) {
 //                w_bRet = m_devComm!!.UART_ReceiveAck2(CMD_FP_CANCEL_CODE.toShort())
 //            } else
-            if (m_devComm!!.m_nConnected.toInt() == 2) {
-                w_bRet = m_devComm!!.USB_ReceiveAck2(CMD_FP_CANCEL_CODE.toShort())
+            if (m_devComm!!.mNconnected.toInt() == 2) {
+                w_bRet = m_devComm!!.usbReceiveAck2()
             }
             m_strPost = if (w_bRet == true) {
                 "Result : FP Cancel Success."
@@ -545,19 +545,19 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
 
     fun Run_CmdGetFeatureOfCapturedFP(): Int {
         var w_blRet = false
-        m_devComm!!.memset(m_TemplateData, 0.toByte(), GD_RECORD_SIZE)
+        DevComm.memSet(m_TemplateData, 0.toByte(), GD_RECORD_SIZE)
         //. Assemble command packet
-        m_devComm!!.InitPacket(CMD_FEATURE_OF_CAPTURED_FP_CODE.toShort(), true)
-        m_devComm!!.AddCheckSum(true)
+        m_devComm!!.initPacket(CMD_FEATURE_OF_CAPTURED_FP_CODE.toShort(), true)
+        m_devComm!!.addCheckSum(true)
         m_strPost = "Input your finger"
         m_txtStatus.text = m_strPost
         m_dwCode = CMD_FEATURE_OF_CAPTURED_FP_CODE
-        w_blRet = m_devComm!!.Send_Command(CMD_FEATURE_OF_CAPTURED_FP_CODE.toShort())
+        w_blRet = m_devComm!!.sendCommand(CMD_FEATURE_OF_CAPTURED_FP_CODE.toShort())
         if (w_blRet == false) {
             CloseDevice()
             return 1
         }
-        if (m_devComm!!.GetRetCode() != ERR_SUCCESS.toShort()) {
+        if (m_devComm!!.getRetCode() != ERR_SUCCESS.toShort()) {
             DisplayResponsePacket(CMD_FEATURE_OF_CAPTURED_FP_CODE.toShort())
             return 1
         }
@@ -572,46 +572,46 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
             return 1
         }
         //. Assemble command packet
-        m_devComm!!.InitPacket(CMD_IDENTIFY_TEMPLATE_WITH_FP_CODE.toShort(), true)
-        m_devComm!!.SetDataLen(0x0002.toShort())
-        m_devComm!!.SetCmdData(GD_RECORD_SIZE.toShort(), true)
-        m_devComm!!.AddCheckSum(true)
+        m_devComm!!.initPacket(CMD_IDENTIFY_TEMPLATE_WITH_FP_CODE.toShort(), true)
+        m_devComm!!.setDataLen(0x0002.toShort())
+        m_devComm!!.setCmdData(GD_RECORD_SIZE.toShort(), true)
+        m_devComm!!.addCheckSum(true)
         m_dwCode = CMD_IDENTIFY_TEMPLATE_WITH_FP_CODE
-        w_blRet = m_devComm!!.Send_Command(CMD_IDENTIFY_TEMPLATE_WITH_FP_CODE.toShort())
+        w_blRet = m_devComm!!.sendCommand(CMD_IDENTIFY_TEMPLATE_WITH_FP_CODE.toShort())
         if (w_blRet == false) {
             CloseDevice()
             return 1
         }
-        if (m_devComm!!.GetRetCode() != ERR_SUCCESS.toShort()) {
+        if (m_devComm!!.getRetCode() != ERR_SUCCESS.toShort()) {
             DisplayResponsePacket(CMD_IDENTIFY_TEMPLATE_WITH_FP_CODE.toShort())
             return 1
         }
         m_strPost = "Input your finger"
         m_txtStatus.text = m_strPost
         //. Assemble data packet
-        m_devComm!!.InitPacket(CMD_IDENTIFY_TEMPLATE_WITH_FP_CODE.toShort(), false)
-        m_devComm!!.SetDataLen((GD_RECORD_SIZE + 2).toShort())
-        m_devComm!!.m_abyPacket[6] = 0 // Template Index
-        m_devComm!!.m_abyPacket[7] = 0 // Mode (0 : Set Buffer, 1 : Identify)
-        System.arraycopy(m_TemplateData, 0, m_devComm!!.m_abyPacket, 8, GD_RECORD_SIZE)
-        m_devComm!!.AddCheckSum(false)
+        m_devComm!!.initPacket(CMD_IDENTIFY_TEMPLATE_WITH_FP_CODE.toShort(), false)
+        m_devComm!!.setDataLen((GD_RECORD_SIZE + 2).toShort())
+        m_devComm!!.mAbyPacket[6] = 0 // Template Index
+        m_devComm!!.mAbyPacket[7] = 0 // Mode (0 : Set Buffer, 1 : Identify)
+        System.arraycopy(m_TemplateData, 0, m_devComm!!.mAbyPacket, 8, GD_RECORD_SIZE)
+        m_devComm!!.addCheckSum(false)
         //. Send data packet to target
-        w_blRet = m_devComm!!.Send_DataPacket(CMD_IDENTIFY_TEMPLATE_WITH_FP_CODE.toShort())
+        w_blRet = m_devComm!!.sendDataPacket(CMD_IDENTIFY_TEMPLATE_WITH_FP_CODE.toShort())
         if (w_blRet == false) {
             CloseDevice()
             return 1
         }
-        if (m_devComm!!.GetRetCode().toInt() != ERR_SUCCESS) {
+        if (m_devComm!!.getRetCode().toInt() != ERR_SUCCESS) {
             DisplayResponsePacket(CMD_IDENTIFY_TEMPLATE_WITH_FP_CODE.toShort())
             return 1
         }
         //. Assemble data packet
-        m_devComm!!.InitPacket(CMD_IDENTIFY_TEMPLATE_WITH_FP_CODE.toShort(), false)
-        m_devComm!!.SetDataLen((GD_RECORD_SIZE + 2).toShort())
-        m_devComm!!.m_abyPacket[6] = 1 // Template Index
-        m_devComm!!.m_abyPacket[7] = 1 // Mode (0 : Set Buffer, 1 : Set Buffer and Identify)
-        System.arraycopy(m_TemplateData2, 0, m_devComm!!.m_abyPacket, 8, GD_RECORD_SIZE)
-        m_devComm!!.AddCheckSum(false)
+        m_devComm!!.initPacket(CMD_IDENTIFY_TEMPLATE_WITH_FP_CODE.toShort(), false)
+        m_devComm!!.setDataLen((GD_RECORD_SIZE + 2).toShort())
+        m_devComm!!.mAbyPacket[6] = 1 // Template Index
+        m_devComm!!.mAbyPacket[7] = 1 // Mode (0 : Set Buffer, 1 : Set Buffer and Identify)
+        System.arraycopy(m_TemplateData2, 0, m_devComm!!.mAbyPacket, 8, GD_RECORD_SIZE)
+        m_devComm!!.addCheckSum(false)
         //. Send data packet to target
         StartSendThread()
         SystemClock.sleep(500)
@@ -631,25 +631,25 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
             m_strPost = "Input your finger"
             m_txtStatus.post(runShowStatus)
             //. Assemble command packet
-            m_devComm!!.InitPacket(CMD_UP_IMAGE_CODE.toShort(), true)
-            m_devComm!!.SetDataLen(0x00.toShort())
-            m_devComm!!.AddCheckSum(true)
+            m_devComm!!.initPacket(CMD_UP_IMAGE_CODE.toShort(), true)
+            m_devComm!!.setDataLen(0x00.toShort())
+            m_devComm!!.addCheckSum(true)
             m_dwCode = CMD_UP_IMAGE_CODE
-            w_blRet = m_devComm!!.Send_Command(CMD_UP_IMAGE_CODE.toShort())
+            w_blRet = m_devComm!!.sendCommand(CMD_UP_IMAGE_CODE.toShort())
             if (w_blRet == false) {
                 m_bSendResult = w_blRet
                 m_txtStatus.post(procRspPacket)
                 m_bThreadWork = false
                 return@Runnable  // goto
             }
-            if (m_devComm!!.GetRetCode().toInt() != ERR_SUCCESS) {
+            if (m_devComm!!.getRetCode().toInt() != ERR_SUCCESS) {
                 m_bSendResult = w_blRet
                 m_txtStatus.post(procRspPacket)
                 m_bThreadWork = false
                 return@Runnable  // goto
             }
-            m_nImgWidth = (m_devComm!!.m_abyPacket[9].toInt() shl 8 and 0x0000FF00 or (m_devComm!!.m_abyPacket[8].toInt() and 0x000000FF))
-            m_nImgHeight = (m_devComm!!.m_abyPacket[11].toInt() shl 8 and 0x0000FF00 or (m_devComm!!.m_abyPacket[10].toInt() and 0x000000FF))
+            m_nImgWidth = (m_devComm!!.mAbyPacket[9].toInt() shl 8 and 0x0000FF00 or (m_devComm!!.mAbyPacket[8].toInt() and 0x000000FF))
+            m_nImgHeight = (m_devComm!!.mAbyPacket[11].toInt() shl 8 and 0x0000FF00 or (m_devComm!!.mAbyPacket[10].toInt() and 0x000000FF))
 //            if (m_devComm!!.m_nConnected.toInt() == 1 || m_devComm!!.m_nConnected.toInt() == 3) {
 //                while (true) {
 //                    w_blRet = m_devComm!!.UART_ReceiveDataPacket(CMD_UP_IMAGE_CODE.toShort())
@@ -688,7 +688,7 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
 //                    }
 //                }
 //            } else {
-            w_blRet = m_devComm!!.USB_ReceiveImage(m_binImage, m_nImgWidth * m_nImgHeight)
+            if(m_binImage != null) w_blRet = m_devComm!!.usbReceiveImage(m_binImage!!, m_nImgWidth * m_nImgHeight)
 //            }
             m_bSendResult = w_blRet
             m_txtStatus.post(procRspPacket)
@@ -708,18 +708,18 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
             return 1
         }
         //. Assemble command packet
-        m_devComm!!.InitPacket(CMD_IDENTIFY_WITH_IMAGE_CODE.toShort(), true)
-        m_devComm!!.SetDataLen(0x0004.toShort())
-        m_devComm!!.SetCmdData(m_nImgWidth.toShort(), true)
-        m_devComm!!.SetCmdData(m_nImgHeight.toShort(), false)
-        m_devComm!!.AddCheckSum(true)
+        m_devComm!!.initPacket(CMD_IDENTIFY_WITH_IMAGE_CODE.toShort(), true)
+        m_devComm!!.setDataLen(0x0004.toShort())
+        m_devComm!!.setCmdData(m_nImgWidth.toShort(), true)
+        m_devComm!!.setCmdData(m_nImgHeight.toShort(), false)
+        m_devComm!!.addCheckSum(true)
         m_dwCode = CMD_IDENTIFY_WITH_IMAGE_CODE
-        w_blRet = m_devComm!!.Send_Command(CMD_IDENTIFY_WITH_IMAGE_CODE.toShort())
+        w_blRet = m_devComm!!.sendCommand(CMD_IDENTIFY_WITH_IMAGE_CODE.toShort())
         if (w_blRet == false) {
             CloseDevice()
             return 1
         }
-        if (m_devComm!!.GetRetCode() != ERR_SUCCESS.toShort()) {
+        if (m_devComm!!.getRetCode() != ERR_SUCCESS.toShort()) {
             DisplayResponsePacket(CMD_IDENTIFY_WITH_IMAGE_CODE.toShort())
             return 1
         }
@@ -767,20 +767,20 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
 //            m_strPost = "100%..."
 //            m_txtStatus.post(runShowStatus)
 //        } else {
-        w_blRet = m_devComm!!.USB_DownImage(m_binImage, m_nImgWidth * m_nImgHeight)
+        w_blRet = m_devComm!!.usbDownImage(m_binImage, m_nImgWidth * m_nImgHeight)
         if (!w_blRet) {
             CloseDevice()
             return 1
         }
 //        }
         // Identify
-        m_devComm!!.InitPacket(CMD_IDENTIFY_WITH_IMAGE_CODE.toShort(), false)
-        m_devComm!!.SetDataLen(0x0004.toShort())
-        m_devComm!!.m_abyPacket[6] = 0
-        m_devComm!!.m_abyPacket[7] = 0
-        m_devComm!!.m_abyPacket[8] = 0
-        m_devComm!!.m_abyPacket[9] = 0
-        m_devComm!!.AddCheckSum(false)
+        m_devComm!!.initPacket(CMD_IDENTIFY_WITH_IMAGE_CODE.toShort(), false)
+        m_devComm!!.setDataLen(0x0004.toShort())
+        m_devComm!!.mAbyPacket[6] = 0
+        m_devComm!!.mAbyPacket[7] = 0
+        m_devComm!!.mAbyPacket[8] = 0
+        m_devComm!!.mAbyPacket[9] = 0
+        m_devComm!!.addCheckSum(false)
         StartSendThread()
         SystemClock.sleep(200)
         return 0
@@ -803,22 +803,22 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
         }
         w_nTemplateNo = p_nTmpNo
         //. Assemble command packet
-        m_devComm!!.InitPacket(CMD_VERIFY_WITH_IMAGE_CODE.toShort(), true)
-        m_devComm!!.SetDataLen(0x0006.toShort())
-        m_devComm!!.m_abyPacket[6] = m_devComm!!.LOBYTE(w_nTemplateNo.toShort())
-        m_devComm!!.m_abyPacket[7] = m_devComm!!.HIBYTE(w_nTemplateNo.toShort())
-        m_devComm!!.m_abyPacket[8] = m_devComm!!.LOBYTE(m_nImgWidth.toShort())
-        m_devComm!!.m_abyPacket[9] = m_devComm!!.HIBYTE(m_nImgWidth.toShort())
-        m_devComm!!.m_abyPacket[10] = m_devComm!!.LOBYTE(m_nImgHeight.toShort())
-        m_devComm!!.m_abyPacket[11] = m_devComm!!.HIBYTE(m_nImgHeight.toShort())
-        m_devComm!!.AddCheckSum(true)
+        m_devComm!!.initPacket(CMD_VERIFY_WITH_IMAGE_CODE.toShort(), true)
+        m_devComm!!.setDataLen(0x0006.toShort())
+        m_devComm!!.mAbyPacket[6] = DevComm.loByte(w_nTemplateNo.toShort())
+        m_devComm!!.mAbyPacket[7] = DevComm.hiByte(w_nTemplateNo.toShort())
+        m_devComm!!.mAbyPacket[8] = DevComm.loByte(m_nImgWidth.toShort())
+        m_devComm!!.mAbyPacket[9] = DevComm.hiByte(m_nImgWidth.toShort())
+        m_devComm!!.mAbyPacket[10] = DevComm.loByte(m_nImgHeight.toShort())
+        m_devComm!!.mAbyPacket[11] = DevComm.hiByte(m_nImgHeight.toShort())
+        m_devComm!!.addCheckSum(true)
         m_dwCode = CMD_VERIFY_WITH_IMAGE_CODE
-        w_blRet = m_devComm!!.Send_Command(CMD_VERIFY_WITH_IMAGE_CODE.toShort())
+        w_blRet = m_devComm!!.sendCommand(CMD_VERIFY_WITH_IMAGE_CODE.toShort())
         if (w_blRet == false) {
             CloseDevice()
             return 1
         }
-        if (m_devComm!!.GetRetCode() != ERR_SUCCESS.toShort()) {
+        if (m_devComm!!.getRetCode() != ERR_SUCCESS.toShort()) {
             DisplayResponsePacket(CMD_VERIFY_WITH_IMAGE_CODE.toShort())
             return 1
         }
@@ -865,20 +865,20 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
 //            m_strPost = "100%..."
 //            m_txtStatus.post(runShowStatus)
 //        } else {
-            w_blRet = m_devComm!!.USB_DownImage(m_binImage, m_nImgWidth * m_nImgHeight)
+            w_blRet = m_devComm!!.usbDownImage(m_binImage, m_nImgWidth * m_nImgHeight)
             if (!w_blRet) {
                 CloseDevice()
                 return 1
             }
 //        }
         // Identify
-        m_devComm!!.InitPacket(CMD_VERIFY_WITH_IMAGE_CODE.toShort(), false)
-        m_devComm!!.SetDataLen(0x0004.toShort())
-        m_devComm!!.m_abyPacket[6] = 0
-        m_devComm!!.m_abyPacket[7] = 0
-        m_devComm!!.m_abyPacket[8] = 0
-        m_devComm!!.m_abyPacket[9] = 0
-        m_devComm!!.AddCheckSum(false)
+        m_devComm!!.initPacket(CMD_VERIFY_WITH_IMAGE_CODE.toShort(), false)
+        m_devComm!!.setDataLen(0x0004.toShort())
+        m_devComm!!.mAbyPacket[6] = 0
+        m_devComm!!.mAbyPacket[7] = 0
+        m_devComm!!.mAbyPacket[8] = 0
+        m_devComm!!.mAbyPacket[9] = 0
+        m_devComm!!.addCheckSum(false)
         StartSendThread()
         SystemClock.sleep(200)
         return 0
@@ -898,28 +898,28 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
             return 1
         }
         //. Assemble command packet
-        m_devComm!!.InitPacket(CMD_VERIFY_WITH_DOWN_TMPL_CODE.toShort(), true)
-        m_devComm!!.SetDataLen(0x0004.toShort())
-        m_devComm!!.m_abyPacket[6] = m_devComm!!.LOBYTE(w_nTemplateNo.toShort())
-        m_devComm!!.m_abyPacket[7] = m_devComm!!.HIBYTE(w_nTemplateNo.toShort())
-        m_devComm!!.m_abyPacket[8] = m_devComm!!.LOBYTE(GD_RECORD_SIZE.toShort())
-        m_devComm!!.m_abyPacket[9] = m_devComm!!.HIBYTE(GD_RECORD_SIZE.toShort())
-        m_devComm!!.AddCheckSum(true)
+        m_devComm!!.initPacket(CMD_VERIFY_WITH_DOWN_TMPL_CODE.toShort(), true)
+        m_devComm!!.setDataLen(0x0004.toShort())
+        m_devComm!!.mAbyPacket[6] = DevComm.loByte(w_nTemplateNo.toShort())
+        m_devComm!!.mAbyPacket[7] = DevComm.hiByte(w_nTemplateNo.toShort())
+        m_devComm!!.mAbyPacket[8] = DevComm.loByte(GD_RECORD_SIZE.toShort())
+        m_devComm!!.mAbyPacket[9] = DevComm.hiByte(GD_RECORD_SIZE.toShort())
+        m_devComm!!.addCheckSum(true)
         m_dwCode = CMD_VERIFY_WITH_DOWN_TMPL_CODE
-        w_blRet = m_devComm!!.Send_Command(CMD_VERIFY_WITH_DOWN_TMPL_CODE.toShort())
+        w_blRet = m_devComm!!.sendCommand(CMD_VERIFY_WITH_DOWN_TMPL_CODE.toShort())
         if (w_blRet == false) {
             CloseDevice()
             return 1
         }
-        if (m_devComm!!.GetRetCode().toInt() != ERR_SUCCESS) {
+        if (m_devComm!!.getRetCode().toInt() != ERR_SUCCESS) {
             DisplayResponsePacket(CMD_VERIFY_WITH_DOWN_TMPL_CODE.toShort())
             return 1
         }
         //. Assemble data packet
-        m_devComm!!.InitPacket(CMD_VERIFY_WITH_DOWN_TMPL_CODE.toShort(), false)
-        m_devComm!!.SetDataLen(GD_RECORD_SIZE.toShort())
-        System.arraycopy(m_TemplateData, 0, m_devComm!!.m_abyPacket, 6, GD_RECORD_SIZE)
-        m_devComm!!.AddCheckSum(false)
+        m_devComm!!.initPacket(CMD_VERIFY_WITH_DOWN_TMPL_CODE.toShort(), false)
+        m_devComm!!.setDataLen(GD_RECORD_SIZE.toShort())
+        System.arraycopy(m_TemplateData, 0, m_devComm!!.mAbyPacket, 6, GD_RECORD_SIZE)
+        m_devComm!!.addCheckSum(false)
         StartSendThread()
         SystemClock.sleep(200)
         return 0
@@ -933,25 +933,25 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
             return 1
         }
         //. Assemble command packet
-        m_devComm!!.InitPacket(CMD_IDENTIFY_WITH_DOWN_TMPL_CODE.toShort(), true)
-        m_devComm!!.SetDataLen(0x0002.toShort())
-        m_devComm!!.SetCmdData(GD_RECORD_SIZE.toShort(), true)
-        m_devComm!!.AddCheckSum(true)
+        m_devComm!!.initPacket(CMD_IDENTIFY_WITH_DOWN_TMPL_CODE.toShort(), true)
+        m_devComm!!.setDataLen(0x0002.toShort())
+        m_devComm!!.setCmdData(GD_RECORD_SIZE.toShort(), true)
+        m_devComm!!.addCheckSum(true)
         m_dwCode = CMD_IDENTIFY_WITH_DOWN_TMPL_CODE
-        w_blRet = m_devComm!!.Send_Command(CMD_IDENTIFY_WITH_DOWN_TMPL_CODE.toShort())
+        w_blRet = m_devComm!!.sendCommand(CMD_IDENTIFY_WITH_DOWN_TMPL_CODE.toShort())
         if (w_blRet == false) {
             CloseDevice()
             return 1
         }
-        if (m_devComm!!.GetRetCode() != ERR_SUCCESS.toShort()) {
+        if (m_devComm!!.getRetCode() != ERR_SUCCESS.toShort()) {
             DisplayResponsePacket(CMD_IDENTIFY_WITH_DOWN_TMPL_CODE.toShort())
             return 1
         }
         //. Assemble data packet
-        m_devComm!!.InitPacket(CMD_IDENTIFY_WITH_DOWN_TMPL_CODE.toShort(), false)
-        m_devComm!!.SetDataLen(GD_RECORD_SIZE.toShort())
-        System.arraycopy(m_TemplateData, 0, m_devComm!!.m_abyPacket, 6, GD_RECORD_SIZE)
-        m_devComm!!.AddCheckSum(false)
+        m_devComm!!.initPacket(CMD_IDENTIFY_WITH_DOWN_TMPL_CODE.toShort(), false)
+        m_devComm!!.setDataLen(GD_RECORD_SIZE.toShort())
+        System.arraycopy(m_TemplateData, 0, m_devComm!!.mAbyPacket, 6, GD_RECORD_SIZE)
+        m_devComm!!.addCheckSum(false)
         StartSendThread()
         SystemClock.sleep(200)
         return 0
@@ -983,10 +983,10 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
         m_strPost = ""
         m_txtStatus.text = m_strPost
         //    	w_wPrefix = m_devComm.MAKEWORD(m_devComm.m_abyPacket[0], m_devComm.m_abyPacket[1]);
-        w_nRet = m_devComm!!.MAKEWORD(m_devComm!!.m_abyPacket[6], m_devComm!!.m_abyPacket[7])
-        w_nData = m_devComm!!.MAKEWORD(m_devComm!!.m_abyPacket[8], m_devComm!!.m_abyPacket[9])
-        w_nData2 = m_devComm!!.MAKEWORD(m_devComm!!.m_abyPacket[10], m_devComm!!.m_abyPacket[11])
-        w_nSize = m_devComm!!.MAKEWORD(m_devComm!!.m_abyPacket[4], m_devComm!!.m_abyPacket[5])
+        w_nRet = DevComm.makeWord(m_devComm!!.mAbyPacket[6], m_devComm!!.mAbyPacket[7])
+        w_nData = DevComm.makeWord(m_devComm!!.mAbyPacket[8], m_devComm!!.mAbyPacket[9])
+        w_nData2 = DevComm.makeWord(m_devComm!!.mAbyPacket[10], m_devComm!!.mAbyPacket[11])
+        w_nSize = DevComm.makeWord(m_devComm!!.mAbyPacket[4], m_devComm!!.mAbyPacket[5])
         when (p_nCode.toInt()) {
             CMD_CLEAR_TEMPLATE_CODE -> if (w_nRet.toInt() == ERR_SUCCESS) {
                 m_strPost = String.format("Result : Success\r\nTemplate No : %d", w_nData)
@@ -1043,7 +1043,7 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
             } else {
                 m_strPost = String.format("Result : Fail\r\n")
                 m_strPost += GetErrorMsg(w_nData)
-                if (m_devComm!!.LOBYTE(w_nData).toInt() == ERR_BAD_QUALITY) {
+                if (DevComm.loByte(w_nData).toInt() == ERR_BAD_QUALITY) {
                     m_strPost += "\r\nAgain... !"
                 } else {
                     if (w_nData.toInt() == ERR_DUPLICATION_ID) {
@@ -1076,7 +1076,7 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
                 }
             CMD_SET_PARAMETER_CODE -> if (w_nRet == ERR_SUCCESS.toShort()) {
                 m_strPost = if (m_bParamGet) String.format("Result : Success\r\nParameter Value = %d",
-                        (m_devComm!!.m_abyPacket[8].toInt() and 0x000000FF) + (m_devComm!!.m_abyPacket[9].toInt() shl 8 and 0x0000FF00) + (m_devComm!!.m_abyPacket[10].toInt() shl 16 and 0x00FF0000) + (m_devComm!!.m_abyPacket[24].toInt() shl 8 and -0x1000000)) else String.format("Result : Success\r\n")
+                        (m_devComm!!.mAbyPacket[8].toInt() and 0x000000FF) + (m_devComm!!.mAbyPacket[9].toInt() shl 8 and 0x0000FF00) + (m_devComm!!.mAbyPacket[10].toInt() shl 16 and 0x00FF0000) + (m_devComm!!.mAbyPacket[24].toInt() shl 8 and -0x1000000)) else String.format("Result : Success\r\n")
             } else {
                 m_strPost = String.format("Result : Fail\r\n")
                 m_strPost += GetErrorMsg(w_nData)
@@ -1094,7 +1094,7 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
                 m_strPost += GetErrorMsg(w_nData)
             }
             CMD_GET_FW_VERSION_CODE -> if (w_nRet == ERR_SUCCESS.toShort()) {
-                m_strPost = String.format("Result : Success\r\nFirmware Version: %d.%d", m_devComm!!.LOBYTE(w_nData), m_devComm!!.HIBYTE(w_nData))
+                m_strPost = String.format("Result : Success\r\nFirmware Version: %d.%d", DevComm.loByte(w_nData), DevComm.hiByte(w_nData))
             } else {
                 m_strPost = String.format("Result : Fail\r\n")
                 m_strPost += GetErrorMsg(w_nData)
@@ -1119,7 +1119,7 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
                 m_strPost = if (w_nSize.toInt() != GD_RECORD_SIZE.toShort() + 2) {
                     String.format("Result : Fail\r\nCommunication Error")
                 } else {
-                    System.arraycopy(m_devComm!!.m_abyPacket, 8, m_TemplateData, 0, GD_RECORD_SIZE)
+                    System.arraycopy(m_devComm!!.mAbyPacket, 8, m_TemplateData, 0, GD_RECORD_SIZE)
                     String.format("Result : Success")
                 }
             } else {
@@ -1127,7 +1127,7 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
                 m_strPost += GetErrorMsg(w_nData)
             }
             CMD_IDENTIFY_TEMPLATE_WITH_FP_CODE -> if (w_nRet == ERR_SUCCESS.toShort()) {
-                if (m_devComm!!.LOBYTE(w_nData).toShort() == GD_DOWNLOAD_SUCCESS.toShort()) {
+                if (DevComm.loByte(w_nData).toShort() == GD_DOWNLOAD_SUCCESS.toShort()) {
                     m_strPost = String.format("Result : Download Success\r\nInput your finger")
                     m_txtStatus.text = m_strPost
                     return
@@ -1151,9 +1151,9 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
         }
         if (p_nCode == CMD_IDENTIFY_FREE_CODE.toShort()) {
             if (w_nRet == ERR_SUCCESS.toShort() ||
-                    m_devComm!!.LOBYTE(w_nData).toInt() != ERR_NOT_AUTHORIZED && m_devComm!!.LOBYTE(w_nData).toInt() != ERR_FP_CANCEL && m_devComm!!.LOBYTE(w_nData).toInt() != ERR_INVALID_OPERATION_MODE && m_devComm!!.LOBYTE(w_nData).toInt() != ERR_ALL_TMPL_EMPTY) {
+                    DevComm.loByte(w_nData).toInt() != ERR_NOT_AUTHORIZED && DevComm.loByte(w_nData).toInt() != ERR_FP_CANCEL && DevComm.loByte(w_nData).toInt() != ERR_INVALID_OPERATION_MODE && DevComm.loByte(w_nData).toInt() != ERR_ALL_TMPL_EMPTY) {
                 m_txtStatus.text = m_strPost
-                m_devComm!!.memset(m_devComm!!.m_abyPacket, 0.toByte(), 64 * 1024)
+                DevComm.memSet(m_devComm!!.mAbyPacket, 0.toByte(), 64 * 1024)
                 StartSendThread()
                 return
             }
@@ -1163,7 +1163,7 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
             when (w_nData.toInt()) {
                 GD_NEED_RELEASE_FINGER, GD_NEED_FIRST_SWEEP, GD_NEED_SECOND_SWEEP, GD_NEED_THIRD_SWEEP, ERR_BAD_QUALITY -> {
                     m_txtStatus.text = m_strPost
-                    m_devComm!!.memset(m_devComm!!.m_abyPacket, 0.toByte(), 64 * 1024)
+                    DevComm.memSet(m_devComm!!.mAbyPacket, 0.toByte(), 64 * 1024)
                     StartSendThread()
                     return
                 }
@@ -1176,7 +1176,7 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
             when (w_nData.toInt()) {
                 GD_NEED_RELEASE_FINGER -> {
                     m_txtStatus.text = m_strPost
-                    m_devComm!!.memset(m_devComm!!.m_abyPacket, 0.toByte(), 64 * 1024)
+                    DevComm.memSet(m_devComm!!.mAbyPacket, 0.toByte(), 64 * 1024)
                     StartSendThread()
                     return
                 }
@@ -1186,7 +1186,7 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
         }
         m_txtStatus.post(m_runEnableCtrl)
         m_txtStatus.text = m_strPost
-        m_devComm!!.memset(m_devComm!!.m_abyPacket, 0.toByte(), 64 * 1024)
+        DevComm.memSet(m_devComm!!.mAbyPacket, 0.toByte(), 64 * 1024)
         m_bCmdDone = true
     }
 
@@ -1260,7 +1260,7 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
                 w_nChkSum += (m_TemplateData[i].toInt() and 0xFF).toShort()
                 i++
             }
-            w_nCalcChkSum = m_devComm!!.MAKEWORD(m_TemplateData[w_nLen - 2], m_TemplateData[w_nLen - 1])
+            w_nCalcChkSum = DevComm.makeWord(m_TemplateData[w_nLen - 2], m_TemplateData[w_nLen - 1])
             if (w_nChkSum != w_nCalcChkSum.toInt()) {
                 m_strPost = "Invalid template data."
                 return false
@@ -1402,7 +1402,7 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
             return@Runnable
         }
         //. Display response packet
-        w_wCmd = (m_devComm!!.m_abyPacket[3].toInt() shl 8 and 0x0000FF00 or (m_devComm!!.m_abyPacket[2].toInt() and 0x000000FF)).toShort()
+        w_wCmd = (m_devComm!!.mAbyPacket[3].toInt() shl 8 and 0x0000FF00 or (m_devComm!!.mAbyPacket[2].toInt() and 0x000000FF)).toShort()
         DisplayResponsePacket(w_wCmd)
     }
     var runShowStatus = Runnable { m_txtStatus.text = m_strPost }

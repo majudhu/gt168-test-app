@@ -3,7 +3,7 @@ package com.szadst.szoemhost_lib
 import android.R
 import android.app.Activity
 import android.content.Context
-import android.hardware.usb.UsbManager
+//import android.hardware.usb.UsbManager
 import android.os.SystemClock
 import android.widget.ArrayAdapter
 import android.widget.Spinner
@@ -38,7 +38,7 @@ const val CMD_GET_FW_VERSION_CODE = 0x0112
 const val CMD_FINGER_DETECT_CODE = 0x0113
 const val CMD_FEATURE_OF_CAPTURED_FP_CODE = 0x011A
 const val CMD_IDENTIFY_TEMPLATE_WITH_FP_CODE = 0x011C
-const val CMD_SLED_CTRL_CODE = 0x0124
+//const val CMD_SLED_CTRL_CODE = 0x0124
 const val CMD_IDENTIFY_FREE_CODE = 0x0125
 const val CMD_SET_DEVPASS_CODE = 0x0126
 const val CMD_VERIFY_DEVPASS_CODE = 0x0127
@@ -62,7 +62,7 @@ const val CMD_ENTER_ISPMODE_CODE = 0x0171
 // Error Code
 const val ERR_SUCCESS = 0
 const val ERR_FAIL = 1
-const val ERR_CONTINUE = 2
+//const val ERR_CONTINUE = 2
 const val ERR_COMM_FAIL = 3
 const val ERR_VERIFY = 0x11
 const val ERR_IDENTIFY = 0x12
@@ -79,7 +79,7 @@ const val ERR_SMALL_LINES = 0x22
 const val ERR_TIME_OUT = 0x23
 const val ERR_NOT_AUTHORIZED = 0x24
 const val ERR_GENERALIZE = 0x30
-const val ERR_COM_TIMEOUT = 0x40
+//const val ERR_COM_TIMEOUT = 0x40
 const val ERR_FP_CANCEL = 0x41
 const val ERR_INTERNAL = 0x50
 const val ERR_MEMORY = 0x51
@@ -96,16 +96,16 @@ const val GD_NEED_FIRST_SWEEP = 0xFFF1
 const val GD_NEED_SECOND_SWEEP = 0xFFF2
 const val GD_NEED_THIRD_SWEEP = 0xFFF3
 const val GD_NEED_RELEASE_FINGER = 0xFFF4
-const val GD_TEMPLATE_NOT_EMPTY = 0x01
-const val GD_TEMPLATE_EMPTY = 0x00
+//const val GD_TEMPLATE_NOT_EMPTY = 0x01
+//const val GD_TEMPLATE_EMPTY = 0x00
 const val GD_DETECT_FINGER = 0x01
 const val GD_NO_DETECT_FINGER = 0x00
 const val GD_DOWNLOAD_SUCCESS = 0xA1
 // Packet
 const val MAX_DATA_LEN = 600 /*512*/
 const val CMD_PACKET_LEN = 22
-const val ST_COMMAND_LEN = 66
-const val IMAGE_RECEIVE_UINT = 498
+//const val ST_COMMAND_LEN = 66
+//const val IMAGE_RECEIVE_UINT = 498
 const val DATA_SPLIT_UNIT = 498
 const val ID_USER_TEMPLATE_SIZE = 498
 // Template
@@ -122,43 +122,41 @@ const val COMM_TIMEOUT = 15000
 private const val VID = 0x2009
 private const val PID = 0x7638
 // UART ch34xuartdriver
-private const val UART_ACTION_USB_PERMISSION = "cn.wch.wchusbdriver.USB_PERMISSION"
+//private const val UART_ACTION_USB_PERMISSION = "cn.wch.wchusbdriver.USB_PERMISSION"
 
 //import com.szadst.szoemhost_lib.LibDebugManage;
 class DevComm(private val m_parentAcitivity: Activity, usbConnState: IUsbConnState, p_spDevice: Spinner) {
 
     //    var m_uartDriver: CH34xUARTDriver
-    var m_bSendPacketWork = false
-    var m_nPacketSize = 0
-    var m_bySrcDeviceID: Byte = 1
-    var m_byDstDeviceID: Byte = 1
-    var m_abyPacket = ByteArray(64 * 1024)
-    var m_abyPacket2 = ByteArray(MAX_DATA_LEN + 10)
-    var m_abyPacketTmp = ByteArray(64 * 1024)
+    private var mbSendPacketWork = false
+    private var mnPacketSize = 0
+    //    var m_bySrcDeviceID: Byte = 1
+//    var m_byDstDeviceID: Byte = 1
+    var mAbyPacket = ByteArray(64 * 1024)
+    private var mAbyPacket2 = ByteArray(MAX_DATA_LEN + 10)
+    private var mAbypackettmp = ByteArray(64 * 1024)
     //--------------------------------------------------//
-    private val mApplicationContext: Context
+    private val mApplicationContext: Context = m_parentAcitivity.applicationContext
     // USB
-    private val m_usbBase: UsbController
-    var m_pWriteBuffer: ByteArray
-    var m_pReadBuffer: ByteArray
-    var m_pUARTReadBuf: ByteArray
-    var m_nUARTReadLen: Int
-    var m_bBufferHandle = false
+    private val mUsbbase: UsbController = UsbController(m_parentAcitivity, usbConnState, VID, PID)
+    private var mPwritebuffer: ByteArray
+    private var mPreadbuffer: ByteArray
+    var mPuartreadbuf: ByteArray
+    var mNuartreadlen: Int
+    var mBbufferhandle = false
     // Serial Port
-    var mSerialPortFinder //�����豸����
+    private var mSerialPortFinder //�����豸����
             : SerialPortFinder
-    var DispQueue //ˢ����ʾ�߳�
+    var dispQueue //ˢ����ʾ�߳�
             : DispQueueThread
-    var m_SerialPort: SerialControl
+    private var mSerialport: SerialControl
     // Connection
-    var m_nConnected // 0 : Not Connected, 1 : UART, 2 : USB, 3 : ttyUART
+    var mNconnected // 0 : Not Connected, 1 : UART, 2 : USB, 3 : ttyUART
             : Byte
-    var m_dbgInfo: LibDebugManage? = null
+//    var m_dbgInfo: LibDebugManage? = null
 
     init { //    	LibDebugManage.DeleteLog();
-        mApplicationContext = m_parentAcitivity.applicationContext
         // USB Init
-        m_usbBase = UsbController(m_parentAcitivity, usbConnState, VID, PID)
         // UART Driver Init
 //        m_uartDriver = CH34xUARTDriver(
 //                mApplicationContext.getSystemService(Context.USB_SERVICE) as UsbManager, m_parentAcitivity,
@@ -181,21 +179,21 @@ class DevComm(private val m_parentAcitivity: Activity, usbConnState: IUsbConnSta
 // 			dialog.show();
 // 		}
 // Buffer Init
-        m_nConnected = 0
-        m_nUARTReadLen = 0
-        m_pWriteBuffer = ByteArray(MAX_DATA_LEN)
-        m_pReadBuffer = ByteArray(MAX_DATA_LEN)
-        m_pUARTReadBuf = ByteArray(MAX_DATA_LEN)
-        DispQueue = DispQueueThread()
-        DispQueue.start()
-        m_SerialPort = SerialControl()
+        mNconnected = 0
+        mNuartreadlen = 0
+        mPwritebuffer = ByteArray(MAX_DATA_LEN)
+        mPreadbuffer = ByteArray(MAX_DATA_LEN)
+        mPuartreadbuf = ByteArray(MAX_DATA_LEN)
+        dispQueue = DispQueueThread()
+        dispQueue.start()
+        mSerialport = SerialControl()
         mSerialPortFinder = SerialPortFinder()
         val entryValues = mSerialPortFinder.allDevicesPath
         val allDevices: MutableList<String?> = ArrayList()
         allDevices.add("USB")
 //        allDevices.add("CH34xUART")
-        for (i in entryValues!!.indices) {
-            allDevices.add(entryValues!![i])
+        for (i in entryValues.indices) {
+            allDevices.add(entryValues[i])
             //			LibDebugManage.WriteLog2(entryValues[i]);
         }
         val aspnDevices = ArrayAdapter(m_parentAcitivity, R.layout.simple_spinner_item, allDevices)
@@ -203,14 +201,15 @@ class DevComm(private val m_parentAcitivity: Activity, usbConnState: IUsbConnSta
     }
 
 
-    fun DevComm_Init(parentActivity: Activity?, usbConnState: IUsbConnState?, p_spDevice: Spinner): Int {
-        m_nConnected = 0
-        m_nUARTReadLen = 0
+    //    fun devcommInit(parentActivity: Activity?, usbConnState: IUsbConnState?, p_spDevice: Spinner): Int {
+    fun devCommInit(p_spDevice: Spinner): Int {
+        mNconnected = 0
+        mNuartreadlen = 0
         val entryValues = mSerialPortFinder.allDevicesPath
         val allDevices: MutableList<String?> = ArrayList()
         allDevices.add("USB")
 //        allDevices.add("CH34xUART")
-        for (i in entryValues!!.indices) {
+        for (i in entryValues.indices) {
             allDevices.add(entryValues[i])
         }
         val aspnDevices = ArrayAdapter(m_parentAcitivity, R.layout.simple_spinner_item, allDevices)
@@ -218,17 +217,17 @@ class DevComm(private val m_parentAcitivity: Activity, usbConnState: IUsbConnSta
         return 0
     }
 
-    fun IsInit(): Boolean {
-        return if (m_nConnected.toInt() == 0) false else if (m_nConnected.toInt() == 1) true else if (m_nConnected.toInt() == 2) m_usbBase.IsInit() else true
+    fun isInit(): Boolean {
+        return if (mNconnected.toInt() == 0) false else if (mNconnected.toInt() == 1) true else if (mNconnected.toInt() == 2) mUsbbase.IsInit() else true
     }
 
-    fun OpenComm(p_szDevice: String, p_nBaudrate: Int): Boolean {
-        if (m_nConnected.toInt() != 0) return false
+    fun openComm(p_szDevice: String, p_nBaudrate: Int): Boolean {
+        if (mNconnected.toInt() != 0) return false
         if (p_szDevice === "USB") // USB
         {
-            if (!m_usbBase.IsInit()) m_usbBase.init()
-            if (!m_usbBase.IsInit()) return false
-            m_nConnected = 2
+            if (!mUsbbase.IsInit()) mUsbbase.init()
+            if (!mUsbbase.IsInit()) return false
+            mNconnected = 2
         }
 //        else if (p_szDevice === "CH34xUART") // UART
 //        {
@@ -256,10 +255,10 @@ class DevComm(private val m_parentAcitivity: Activity, usbConnState: IUsbConnSta
 //        }
         else  // ttyUART
         {
-            m_SerialPort.port = p_szDevice
-            m_SerialPort.baudRate = p_nBaudrate
+            mSerialport.port = p_szDevice
+            mSerialport.baudRate = p_nBaudrate
             try {
-                m_SerialPort.open()
+                mSerialport.open()
             } catch (e: SecurityException) {
                 Toast.makeText(mApplicationContext, "Open ttyUART device failed!", Toast.LENGTH_SHORT).show()
                 return false
@@ -270,504 +269,448 @@ class DevComm(private val m_parentAcitivity: Activity, usbConnState: IUsbConnSta
                 Toast.makeText(mApplicationContext, "Open ttyUART device failed!", Toast.LENGTH_SHORT).show()
                 return false
             }
-            m_nConnected = 3
+            mNconnected = 3
         }
         return true
     }
 
-    fun CloseComm(): Boolean {
-        if (m_nConnected.toInt() == 0) {
-            return false
-        } else if (m_nConnected.toInt() == 1) // UART
-        {
+    fun closeComm(): Boolean {
+        when {
+            mNconnected.toInt() == 0 -> {
+                return false
+            }
+            mNconnected.toInt() == 1 // UART
+            -> {
 //            m_uartDriver.CloseDevice()
-            m_nConnected = 0
-        } else if (m_nConnected.toInt() == 2) // USB
-        {
-            m_nConnected = 0
-            m_usbBase.uninit()
-        } else  // ttyUART
-        {
-            m_SerialPort.stopSend()
-            m_SerialPort.close()
-            m_nConnected = 0
+                mNconnected = 0
+            }
+            mNconnected.toInt() == 2 // USB
+            -> {
+                mNconnected = 0
+                mUsbbase.uninit()
+            }
+            else  // ttyUART
+            -> {
+                mSerialport.stopSend()
+                mSerialport.close()
+                mNconnected = 0
+            }
         }
         return true
     }
     /** */
     /** */
-    fun Run_TestConnection(): Int {
-        val w_bRet: Boolean
-        InitPacket(CMD_TEST_CONNECTION_CODE.toShort(), true)
-        AddCheckSum(true)
-        w_bRet = Send_Command(CMD_TEST_CONNECTION_CODE.toShort())
-        if (!w_bRet) {
+    fun runTestConnection(): Int {
+        initPacket(CMD_TEST_CONNECTION_CODE.toShort(), true)
+        addCheckSum(true)
+        val wBRet: Boolean = sendCommand(CMD_TEST_CONNECTION_CODE.toShort())
+        if (!wBRet) {
             return ERR_COMM_FAIL
         }
-        return if (GetRetCode().toInt() != ERR_SUCCESS) {
+        return if (getRetCode().toInt() != ERR_SUCCESS) {
             ERR_FAIL
         } else ERR_SUCCESS
     }
     /** */
     /** */
-    fun Run_GetDeviceInfo(): Int {
+    fun runGetDeviceInfo(): Int {
         return ERR_SUCCESS
     }
 
-    fun GetDeviceInformation(deviceInfo: Array<String?>): Boolean {
-        val w_nRecvLen = IntArray(1)
-        val w_abyPCCmd = ByteArray(6)
-        val w_abyData = ByteArray(32)
-        val w_strTmp: String
-        var w_bRet: Boolean
-        Arrays.fill(w_abyPCCmd, 0.toByte())
-        w_abyPCCmd[2] = 0x04
-        w_bRet = SendPackage(w_abyPCCmd, w_abyData)
-        //Toast.makeText(mApplicationContext, "GetDeviceInformation, SendPackage ret = " + w_bRet, Toast.LENGTH_SHORT).show();
-        if (!w_bRet) {
-            return false
-        }
-        w_bRet = RecvPackage(w_abyData, w_nRecvLen)
-        //Toast.makeText(mApplicationContext, "GetDeviceInformation, RecvPackage : " + w_bRet, Toast.LENGTH_SHORT).show();
-        if (!w_bRet) {
-            return false
-        }
-        w_strTmp = String(w_abyData)
-        deviceInfo[0] = w_strTmp
-        //Toast.makeText(mApplicationContext, "GetDeviceInformation, Recv Data : " + w_strTmp, Toast.LENGTH_SHORT).show();
-        return true
-    }
+//    fun GetDeviceInformation(deviceInfo: Array<String?>): Boolean {
+//        val w_nRecvLen = IntArray(1)
+//        val w_abyPCCmd = ByteArray(6)
+//        val w_abyData = ByteArray(32)
+//        val w_strTmp: String
+//        var w_bRet: Boolean
+//        Arrays.fill(w_abyPCCmd, 0.toByte())
+//        w_abyPCCmd[2] = 0x04
+//        w_bRet = SendPackage(w_abyPCCmd, w_abyData)
+//        //Toast.makeText(mApplicationContext, "GetDeviceInformation, SendPackage ret = " + w_bRet, Toast.LENGTH_SHORT).show();
+//        if (!w_bRet) {
+//            return false
+//        }
+//        w_bRet = RecvPackage(w_abyData, w_nRecvLen)
+//        //Toast.makeText(mApplicationContext, "GetDeviceInformation, RecvPackage : " + w_bRet, Toast.LENGTH_SHORT).show();
+//        if (!w_bRet) {
+//            return false
+//        }
+//        w_strTmp = String(w_abyData)
+//        deviceInfo[0] = w_strTmp
+//        //Toast.makeText(mApplicationContext, "GetDeviceInformation, Recv Data : " + w_strTmp, Toast.LENGTH_SHORT).show();
+//        return true
+//    }
 
-    private fun SendPackage(pPCCmd: ByteArray, pData: ByteArray): Boolean {
-        val nDataLen: Int
-        pPCCmd[0] = 0xEF.toByte()
-        pPCCmd[1] = 0x01
-        nDataLen = (pPCCmd[5].toInt() and 0xFF shl 8 and 0x0000FF00 or (pPCCmd[4].toInt() and 0x000000FF))
-        return m_usbBase.UsbSCSIWrite(pPCCmd, 6, pData, nDataLen, 5000)
-    }
+//    private fun SendPackage(pPCCmd: ByteArray, pData: ByteArray): Boolean {
+//        val nDataLen: Int
+//        pPCCmd[0] = 0xEF.toByte()
+//        pPCCmd[1] = 0x01
+//        nDataLen = (pPCCmd[5].toInt() and 0xFF shl 8 and 0x0000FF00 or (pPCCmd[4].toInt() and 0x000000FF))
+//        return mUsbbase.UsbSCSIWrite(pPCCmd, 6, pData, nDataLen, 5000)
+//    }
 
-    private fun RecvPackage(pData: ByteArray, pLevRen: IntArray): Boolean {
-        val w_nLen: Int
-        val w_abyPCCmd = ByteArray(6)
-        val w_abyRespond = ByteArray(4)
-        var w_bRet: Boolean
-        w_abyPCCmd[0] = 0xEF.toByte()
-        w_abyPCCmd[1] = 0x02
-        w_abyPCCmd[2] = 0
-        w_abyPCCmd[3] = 0
-        w_abyPCCmd[4] = 0
-        w_abyPCCmd[5] = 0
-        // receive status
-        w_bRet = m_usbBase.UsbSCSIRead(w_abyPCCmd, 6, w_abyRespond, 4, 5000)
-        if (!w_bRet) return false
-        // receive data
-//w_nLen = (int)((w_abyRespond[3] << 8) | w_abyRespond[2]);
-        w_nLen = ((w_abyRespond[3].toInt() shl 8 and 0x0000FF00) as Int or (w_abyRespond[2].toInt() and 0x000000FF) as Int)
-        if (w_nLen > 0) { //w_nTime = SystemClock.elapsedRealtime();
-            w_abyPCCmd[1] = 0x03
-            w_bRet = m_usbBase.UsbSCSIRead(w_abyPCCmd, 6, pData, w_nLen, 5000)
-            //w_nTime = SystemClock.elapsedRealtime() - w_nTime;
-            if (!w_bRet) return false
-            pLevRen[0] = w_nLen
-        }
-        return true
-    }
+//    private fun RecvPackage(pData: ByteArray, pLevRen: IntArray): Boolean {
+//        val w_nLen: Int
+//        val w_abyPCCmd = ByteArray(6)
+//        val w_abyRespond = ByteArray(4)
+//        var w_bRet: Boolean
+//        w_abyPCCmd[0] = 0xEF.toByte()
+//        w_abyPCCmd[1] = 0x02
+//        w_abyPCCmd[2] = 0
+//        w_abyPCCmd[3] = 0
+//        w_abyPCCmd[4] = 0
+//        w_abyPCCmd[5] = 0
+//        // receive status
+//        w_bRet = mUsbbase.UsbSCSIRead(w_abyPCCmd, 6, w_abyRespond, 4, 5000)
+//        if (!w_bRet) return false
+//        // receive data
+////w_nLen = (int)((w_abyRespond[3] << 8) | w_abyRespond[2]);
+//        w_nLen = ((w_abyRespond[3].toInt() shl 8 and 0x0000FF00) as Int or (w_abyRespond[2].toInt() and 0x000000FF) as Int)
+//        if (w_nLen > 0) { //w_nTime = SystemClock.elapsedRealtime();
+//            w_abyPCCmd[1] = 0x03
+//            w_bRet = mUsbbase.UsbSCSIRead(w_abyPCCmd, 6, pData, w_nLen, 5000)
+//            //w_nTime = SystemClock.elapsedRealtime() - w_nTime;
+//            if (!w_bRet) return false
+//            pLevRen[0] = w_nLen
+//        }
+//        return true
+//    }
 
     /***************************************************************************
      * Get Return Code
      */
-    fun GetRetCode(): Short {
-        return ((m_abyPacket[7].toInt() shl 8 and 0x0000FF00) as Int or (m_abyPacket[6].toInt() and 0x000000FF) as Int).toShort()
+    fun getRetCode(): Short {
+        return ((mAbyPacket[7].toInt() shl 8 and 0x0000FF00) or (mAbyPacket[6].toInt() and 0x000000FF)).toShort()
     }
 
     /***************************************************************************
      * Get Data Length
      */
-    fun GetDataLen(): Short {
-        return (m_abyPacket[5].toInt() shl 8 and 0x0000FF00 or (m_abyPacket[4].toInt() and 0x000000FF)).toShort()
+    fun getDataLen(): Short {
+        return (mAbyPacket[5].toInt() shl 8 and 0x0000FF00 or (mAbyPacket[4].toInt() and 0x000000FF)).toShort()
     }
 
     /***************************************************************************
      * Set Data Length
      */
-    fun SetDataLen(p_wDataLen: Short) {
-        m_abyPacket[4] = (p_wDataLen.toInt() and 0xFF).toByte()
-        m_abyPacket[5] = (p_wDataLen.toInt() and 0xFF00 shr 8 and 0xFF).toByte()
+    fun setDataLen(p_wDataLen: Short) {
+        mAbyPacket[4] = (p_wDataLen.toInt() and 0xFF).toByte()
+        mAbyPacket[5] = (p_wDataLen.toInt() and 0xFF00 shr 8 and 0xFF).toByte()
     }
 
-    fun SetDataLen2(p_wDataLen: Short) {
-        m_abyPacket2[4] = (p_wDataLen.toInt() and 0xFF).toByte()
-        m_abyPacket2[5] = (p_wDataLen.toInt() and 0xFF00 shr 8 and 0xFF).toByte()
+    fun setDataLen2(p_wDataLen: Short) {
+        mAbyPacket2[4] = (p_wDataLen.toInt() and 0xFF).toByte()
+        mAbyPacket2[5] = (p_wDataLen.toInt() and 0xFF00 shr 8 and 0xFF).toByte()
     }
 
     /***************************************************************************
      * Set Command Data
      */
-    fun SetCmdData(p_wData: Short, p_bFirst: Boolean) {
+    fun setCmdData(p_wData: Short, p_bFirst: Boolean) {
         if (p_bFirst) {
-            m_abyPacket[6] = (p_wData.toInt() and 0xFF).toByte()
-            m_abyPacket[7] = (p_wData.toInt() and 0xFF00 shr 8 and 0xFF).toByte()
+            mAbyPacket[6] = (p_wData.toInt() and 0xFF).toByte()
+            mAbyPacket[7] = (p_wData.toInt() and 0xFF00 shr 8 and 0xFF).toByte()
         } else {
-            m_abyPacket[8] = (p_wData.toInt() and 0xFF).toByte()
-            m_abyPacket[9] = (p_wData.toInt() and 0xFF00 shr 8 and 0xFF).toByte()
+            mAbyPacket[8] = (p_wData.toInt() and 0xFF).toByte()
+            mAbyPacket[9] = (p_wData.toInt() and 0xFF00 shr 8 and 0xFF).toByte()
         }
     }
 
     /***************************************************************************
      * Get Command Data
      */
-    fun GetCmdData(p_bFirst: Boolean): Short {
+    fun getCmdData(p_bFirst: Boolean): Short {
         return if (p_bFirst) {
-            (m_abyPacket[7].toInt() shl 8 and 0x0000FF00 or (m_abyPacket[6].toInt() and 0x000000FF)).toShort()
+            (mAbyPacket[7].toInt() shl 8 and 0x0000FF00 or (mAbyPacket[6].toInt() and 0x000000FF)).toShort()
         } else {
-            (m_abyPacket[9].toInt() shl 8 and 0x0000FF00 or (m_abyPacket[8].toInt() and 0x000000FF)).toShort()
+            (mAbyPacket[9].toInt() shl 8 and 0x0000FF00 or (mAbyPacket[8].toInt() and 0x000000FF)).toShort()
         }
     }
 
     /***************************************************************************
      * Get Data Packet Length
      */
-    private fun GetDataPacketLen(): Short {
-        return (m_abyPacket[5].toInt() shl 8 and 0x0000FF00 or (m_abyPacket[4].toInt() and 0x000000FF) + 6).toShort()
+    private fun getDataPacketLen(): Short {
+        return (mAbyPacket[5].toInt() shl 8 and 0x0000FF00 or (mAbyPacket[4].toInt() and 0x000000FF) + 6).toShort()
     }
 
     /***************************************************************************
      * Make Packet
      */
-    fun InitPacket(p_wCmd: Short, p_bCmdData: Boolean) {
-        memset(m_abyPacket, 0.toByte(), CMD_PACKET_LEN)
+    fun initPacket(p_wCmd: Short, p_bCmdData: Boolean) {
+        memSet(mAbyPacket, 0.toByte(), CMD_PACKET_LEN)
         //g_pPacketBuffer->wPrefix = p_bCmdData?CMD_PREFIX_CODE:CMD_DATA_PREFIX_CODE;
         if (p_bCmdData) {
-            m_abyPacket[0] = (CMD_PREFIX_CODE and 0xFF).toByte()
-            m_abyPacket[1] = (CMD_PREFIX_CODE and 0xFF00 shr 8 and 0xFF).toByte()
+            mAbyPacket[0] = (CMD_PREFIX_CODE and 0xFF).toByte()
+            mAbyPacket[1] = (CMD_PREFIX_CODE and 0xFF00 shr 8 and 0xFF).toByte()
         } else {
-            m_abyPacket[0] = (CMD_DATA_PREFIX_CODE and 0xFF).toByte()
-            m_abyPacket[1] = (CMD_DATA_PREFIX_CODE and 0xFF00 shr 8 and 0xFF).toByte()
+            mAbyPacket[0] = (CMD_DATA_PREFIX_CODE and 0xFF).toByte()
+            mAbyPacket[1] = (CMD_DATA_PREFIX_CODE and 0xFF00 shr 8 and 0xFF).toByte()
         }
         //g_pPacketBuffer->wCMD_RCM = p_wCMD;
-        m_abyPacket[2] = (p_wCmd.toInt() and 0xFF).toByte()
-        m_abyPacket[3] = (p_wCmd.toInt() and 0xFF00 shr 8 and 0xFF).toByte()
+        mAbyPacket[2] = (p_wCmd.toInt() and 0xFF).toByte()
+        mAbyPacket[3] = (p_wCmd.toInt() and 0xFF00 shr 8 and 0xFF).toByte()
     }
 
-    fun InitPacket2(p_wCmd: Short, p_bCmdData: Boolean) {
-        memset(m_abyPacket2, 0.toByte(), CMD_PACKET_LEN)
+    fun initPacket2(p_wCmd: Short, p_bCmdData: Boolean) {
+        memSet(mAbyPacket2, 0.toByte(), CMD_PACKET_LEN)
         //g_pPacketBuffer->wPrefix = p_bCmdData?CMD_PREFIX_CODE:CMD_DATA_PREFIX_CODE;
         if (p_bCmdData) {
-            m_abyPacket2[0] = (CMD_PREFIX_CODE and 0xFF).toByte()
-            m_abyPacket2[1] = (CMD_PREFIX_CODE and 0xFF00 shr 8 and 0xFF).toByte()
+            mAbyPacket2[0] = (CMD_PREFIX_CODE and 0xFF).toByte()
+            mAbyPacket2[1] = (CMD_PREFIX_CODE and 0xFF00 shr 8 and 0xFF).toByte()
         } else {
-            m_abyPacket2[0] = (CMD_DATA_PREFIX_CODE and 0xFF).toByte()
-            m_abyPacket2[1] = (CMD_DATA_PREFIX_CODE and 0xFF00 shr 8 and 0xFF).toByte()
+            mAbyPacket2[0] = (CMD_DATA_PREFIX_CODE and 0xFF).toByte()
+            mAbyPacket2[1] = (CMD_DATA_PREFIX_CODE and 0xFF00 shr 8 and 0xFF).toByte()
         }
         //g_pPacketBuffer->wCMD_RCM = p_wCMD;
-        m_abyPacket2[2] = (p_wCmd.toInt() and 0xFF).toByte()
-        m_abyPacket2[3] = (p_wCmd.toInt() and 0xFF00 shr 8 and 0xFF).toByte()
-    }
-
-    /***************************************************************************
-     * Get CheckSum
-     */
-    fun GetCheckSum(p_bCmdData: Boolean): Short {
-        var w_wRet: Int = 0
-        var w_nI: Short = 0
-        w_wRet = 0
-        if (p_bCmdData) {
-            w_nI = 0
-            while (w_nI < CMD_PACKET_LEN) {
-                w_wRet += (m_abyPacket[w_nI.toInt()].toInt() and 0xFF).toShort()
-                w_nI++
-            }
-        } else {
-            w_nI = 0
-            while (w_nI < GetDataPacketLen()) {
-                w_wRet += (m_abyPacket[w_nI.toInt()].toInt() and 0xFF).toShort()
-                w_nI++
-            }
-        }
-        return w_wRet.toShort()
+        mAbyPacket2[2] = (p_wCmd.toInt() and 0xFF).toByte()
+        mAbyPacket2[3] = (p_wCmd.toInt() and 0xFF00 shr 8 and 0xFF).toByte()
     }
 
     /***************************************************************************
      * Set CheckSum
      */
-    fun AddCheckSum(p_bCmdData: Boolean): Short {
-        var w_wRet: Int = 0
-        var w_wLen: Short = 0
-        var w_nI: Int
-        w_wLen = if (p_bCmdData) CMD_PACKET_LEN.toShort() else GetDataPacketLen()
-        w_wRet = 0
-        w_nI = 0
-        while (w_nI < w_wLen) {
-            w_wRet += (m_abyPacket[w_nI].toInt() and 0xFF).toShort()
-            w_nI++
+    fun addCheckSum(p_bCmdData: Boolean): Short {
+        val wWlen: Short = if (p_bCmdData) CMD_PACKET_LEN.toShort() else getDataPacketLen()
+        var wWret = 0
+        var wNi = 0
+        while (wNi < wWlen) {
+            wWret += (mAbyPacket[wNi].toInt() and 0xFF).toShort()
+            wNi++
         }
-        m_abyPacket[w_wLen.toInt()] = (w_wRet.toInt() and 0xFF).toByte()
-        m_abyPacket[w_wLen + 1] = (w_wRet.toInt() and 0xFF00 shr 8 and 0xFF).toByte()
-        return w_wRet.toShort()
+        mAbyPacket[wWlen.toInt()] = (wWret and 0xFF).toByte()
+        mAbyPacket[wWlen + 1] = (wWret and 0xFF00 shr 8 and 0xFF).toByte()
+        return wWret.toShort()
     }
 
-    fun AddCheckSum2(p_bCmdData: Boolean): Short {
-        var w_wRet: Int = 0
-        var w_wLen: Short = 0
-        var w_nI: Int
-        w_wLen = if (p_bCmdData) CMD_PACKET_LEN.toShort() else GetDataPacketLen()
-        w_wRet = 0
-        w_nI = 0
-        while (w_nI < w_wLen) {
-            w_wRet += m_abyPacket2[w_nI].toInt() and 0xFF
-            w_nI++
+    fun addCheckSum2(p_bCmdData: Boolean): Short {
+        var wRet = 0
+        val wLen: Short = if (p_bCmdData) CMD_PACKET_LEN.toShort() else getDataPacketLen()
+        var nI = 0
+        while (nI < wLen) {
+            wRet += mAbyPacket2[nI].toInt() and 0xFF
+            nI++
         }
-        m_abyPacket2[w_wLen.toInt()] = (w_wRet.toInt() and 0xFF).toByte()
-        m_abyPacket2[w_wLen + 1] = (w_wRet.toInt() and 0xFF00 shr 8 and 0xFF).toByte()
-        return w_wRet.toShort()
-    }
-
-    /***************************************************************************
-     * Check Packet
-     */
-    fun CheckReceive(p_wPrefix: Short, p_wCmd: Short): Boolean {
-        val w_wCheckSum: Short
-        val w_wTmpPrefix: Short
-        val w_wTmpCmd: Short
-        val w_wLen: Short
-        // Check Prefix Code
-        w_wTmpPrefix = (m_abyPacket[1].toInt() shl 8 and 0x0000FF00 or (m_abyPacket[0].toInt() and 0x000000FF)).toShort()
-        w_wTmpCmd = (m_abyPacket[3].toInt() shl 8 and 0x0000FF00 or (m_abyPacket[2].toInt() and 0x000000FF)).toShort()
-        //    	if ( g_pPacketBuffer->wCMD_RCM != CMD_FP_CANCEL_CODE )
-        run {
-            if (p_wPrefix != w_wTmpPrefix || p_wCmd != w_wTmpCmd) {
-                return false
-            }
-        }
-        w_wLen = if (p_wPrefix.toInt() == RCM_PREFIX_CODE) CMD_PACKET_LEN.toShort() else GetDataPacketLen()
-        w_wCheckSum = (m_abyPacket[w_wLen + 1].toInt() shl 8 and 0x0000FF00 or (m_abyPacket[w_wLen.toInt()].toInt() and 0x000000FF)).toShort()
-        return if (w_wCheckSum != GetCheckSum(p_wPrefix.toInt() == RCM_PREFIX_CODE)) {
-            false
-        } else true
+        mAbyPacket2[wLen.toInt()] = (wRet and 0xFF).toByte()
+        mAbyPacket2[wLen + 1] = (wRet and 0xFF00 shr 8 and 0xFF).toByte()
+        return wRet.toShort()
     }
 
     //--------------------------- Send, Receive Communication Packet Functions ---------------------//
-    fun Send_Command(p_wCmd: Short): Boolean {
-        return if (m_nConnected.toInt() == 2) USB_SendPacket(p_wCmd) else false
+    fun sendCommand(p_wCmd: Short): Boolean {
+        return if (mNconnected.toInt() == 2) usbSendPacket(p_wCmd) else false
 //        if (m_nConnected.toInt() == 1 || m_nConnected.toInt() == 3) UART_SendCommand(p_wCmd) else
 
     }
     /** */
     /** */
-    fun Send_DataPacket(p_wCmd: Short): Boolean {
-        return if (m_nConnected.toInt() == 2) USB_SendDataPacket(p_wCmd) else false
+    fun sendDataPacket(p_wCmd: Short): Boolean {
+        return if (mNconnected.toInt() == 2) usbSendDataPacket(p_wCmd) else false
 //        if (m_nConnected.toInt() == 1 || m_nConnected.toInt() == 3) UART_SendDataPacket(p_wCmd) else
     }
     /** */
     /** */
-    fun Receive_DataPacket(p_wCmd: Short): Boolean {
-        return if (m_nConnected.toInt() == 2) USB_ReceiveDataPacket(p_wCmd) else false
+    fun receiveDataPacket(p_wCmd: Short): Boolean {
+        return if (mNconnected.toInt() == 2) usbReceiveDataPacket(p_wCmd) else false
 //        if (m_nConnected.toInt() == 1 || m_nConnected.toInt() == 3) UART_ReceiveDataPacket(p_wCmd) else
     }
 
     //------------------------------------------ USB Functions -------------------------------------//
-    fun USB_SendPacket(wCMD: Short): Boolean {
+    fun usbSendPacket(wCMD: Short): Boolean {
         val btCDB = ByteArray(8)
-        val w_bRet: Boolean
+        val bRet: Boolean
         Arrays.fill(btCDB, 0.toByte())
         btCDB[0] = 0xEF.toByte()
         btCDB[1] = 0x11
         btCDB[4] = (CMD_PACKET_LEN + 2).toByte()
-        while (m_bSendPacketWork) {
+        while (mbSendPacketWork) {
             SystemClock.sleep(1)
         }
-        m_bSendPacketWork = true
-        w_bRet = m_usbBase.UsbSCSIWrite(btCDB, 8, m_abyPacket, (CMD_PACKET_LEN + 2) as Int, SCSI_TIMEOUT)
-        m_bSendPacketWork = false
-        return if (!w_bRet) false else USB_ReceiveAck(wCMD)
+        mbSendPacketWork = true
+        bRet = mUsbbase.UsbSCSIWrite(btCDB, 8, mAbyPacket, (CMD_PACKET_LEN + 2), SCSI_TIMEOUT)
+        mbSendPacketWork = false
+        return if (!bRet) false else usbReceiveAck(wCMD)
     }
     /** */
     /** */
-    fun USB_SendPacket2(wCMD: Short): Boolean {
+    fun usbSendPacket2(): Boolean {
         val btCDB = ByteArray(8)
-        val w_bRet: Boolean
+        val wbRet: Boolean
         Arrays.fill(btCDB, 0.toByte())
         btCDB[0] = 0xEF.toByte()
         btCDB[1] = 0x11
         btCDB[4] = (CMD_PACKET_LEN + 2).toByte()
-        while (m_bSendPacketWork) {
+        while (mbSendPacketWork) {
             SystemClock.sleep(1)
         }
-        m_bSendPacketWork = true
-        w_bRet = m_usbBase.UsbSCSIWrite(btCDB, 8, m_abyPacket2, (CMD_PACKET_LEN + 2) as Int, SCSI_TIMEOUT)
-        m_bSendPacketWork = false
-        return if (!w_bRet) false else true
+        mbSendPacketWork = true
+        wbRet = mUsbbase.UsbSCSIWrite(btCDB, 8, mAbyPacket2, (CMD_PACKET_LEN + 2), SCSI_TIMEOUT)
+        mbSendPacketWork = false
+        return wbRet
     }
     /** */
     /** */
-    fun USB_ReceiveAck(p_wCmd: Short): Boolean {
-        var w_nLen: Int
+    fun usbReceiveAck(p_wCmd: Short): Boolean {
+        var wnLen: Int
         val btCDB = ByteArray(8)
-        val w_abyWaitPacket = ByteArray(CMD_PACKET_LEN + 2)
-        var w_dwTimeOut = SCSI_TIMEOUT
-        if (p_wCmd.toInt() == CMD_VERIFY_CODE || p_wCmd.toInt() == CMD_IDENTIFY_CODE || p_wCmd.toInt() == CMD_IDENTIFY_FREE_CODE || p_wCmd.toInt() == CMD_ENROLL_CODE || p_wCmd.toInt() == CMD_ENROLL_ONETIME_CODE) w_dwTimeOut = (GD_MAX_FP_TIME_OUT + 1) * 1000
+        val wAbyWaitPacket = ByteArray(CMD_PACKET_LEN + 2)
+        var wDwtimeout = SCSI_TIMEOUT
+        if (p_wCmd.toInt() == CMD_VERIFY_CODE || p_wCmd.toInt() == CMD_IDENTIFY_CODE || p_wCmd.toInt() == CMD_IDENTIFY_FREE_CODE || p_wCmd.toInt() == CMD_ENROLL_CODE || p_wCmd.toInt() == CMD_ENROLL_ONETIME_CODE) wDwtimeout = (GD_MAX_FP_TIME_OUT + 1) * 1000
         Arrays.fill(btCDB, 0.toByte())
         //w_nReadCount = GetReadWaitTime(p_byCMD);
-        Arrays.fill(w_abyWaitPacket, 0xAF.toByte())
+        Arrays.fill(wAbyWaitPacket, 0xAF.toByte())
         do {
-            Arrays.fill(m_abyPacket, 0.toByte())
+            Arrays.fill(mAbyPacket, 0.toByte())
             btCDB[0] = 0xEF.toByte()
             btCDB[1] = 0x12.toByte()
-            w_nLen = CMD_PACKET_LEN + 2
-            if (!m_usbBase.UsbSCSIRead(btCDB, 8, m_abyPacket, w_nLen, w_dwTimeOut)) return false
+            wnLen = CMD_PACKET_LEN + 2
+            if (!mUsbbase.UsbSCSIRead(btCDB, 8, mAbyPacket, wnLen, wDwtimeout)) return false
             SystemClock.sleep(COMM_SLEEP_TIME.toLong())
-        } while (memcmp(m_abyPacket, w_abyWaitPacket, CMD_PACKET_LEN + 2) == true)
-        m_nPacketSize = w_nLen
-        return if (!CheckReceive(RCM_PREFIX_CODE.toShort(), p_wCmd)) false else true
+        } while (memcmp(mAbyPacket, wAbyWaitPacket, CMD_PACKET_LEN + 2))
+        mnPacketSize = wnLen
+        return checkReceive(this, RCM_PREFIX_CODE.toShort(), p_wCmd)
     }
     /** */
     /** */
-    fun USB_ReceiveAck2(p_wCmd: Short): Boolean {
-        var w_nLen: Int
+    fun usbReceiveAck2(): Boolean {
+        var wNlen: Int
         val btCDB = ByteArray(8)
-        val w_abyWaitPacket = ByteArray(CMD_PACKET_LEN + 2)
-        val w_dwTimeOut = SCSI_TIMEOUT
+        val wAbywaitpacket = ByteArray(CMD_PACKET_LEN + 2)
+        val wDwtimeout = SCSI_TIMEOUT
         Arrays.fill(btCDB, 0.toByte())
-        Arrays.fill(w_abyWaitPacket, 0xAF.toByte())
+        Arrays.fill(wAbywaitpacket, 0xAF.toByte())
         do {
-            Arrays.fill(m_abyPacket2, 0.toByte())
+            Arrays.fill(mAbyPacket2, 0.toByte())
             btCDB[0] = 0xEF.toByte()
             btCDB[1] = 0x12.toByte()
-            w_nLen = CMD_PACKET_LEN + 2
-            if (!m_usbBase.UsbSCSIRead(btCDB, 8, m_abyPacket2, w_nLen, w_dwTimeOut)) return false
+            wNlen = CMD_PACKET_LEN + 2
+            if (!mUsbbase.UsbSCSIRead(btCDB, 8, mAbyPacket2, wNlen, wDwtimeout)) return false
             SystemClock.sleep(COMM_SLEEP_TIME.toLong())
-        } while (memcmp(m_abyPacket2, w_abyWaitPacket, CMD_PACKET_LEN + 2) == true)
-        m_nPacketSize = w_nLen
+        } while (memcmp(mAbyPacket2, wAbywaitpacket, CMD_PACKET_LEN + 2))
+        mnPacketSize = wNlen
         //    	if (!CheckReceive((short)RCM_PREFIX_CODE, p_wCmd))
 //    		return false;
         return true
     }
     /** */
     /** */
-    fun USB_ReceiveDataAck(p_wCmd: Short): Boolean {
+    private fun usbReceiveDataAck(p_wCmd: Short): Boolean {
         val btCDB = ByteArray(8)
-        val w_WaitPacket = ByteArray(8)
-        var w_nLen: Int
-        var w_dwTimeOut = COMM_TIMEOUT
-        if (p_wCmd.toInt() == CMD_VERIFY_CODE || p_wCmd.toInt() == CMD_IDENTIFY_CODE || p_wCmd.toInt() == CMD_IDENTIFY_FREE_CODE || p_wCmd.toInt() == CMD_ENROLL_CODE || p_wCmd.toInt() == CMD_ENROLL_ONETIME_CODE) w_dwTimeOut = (GD_MAX_FP_TIME_OUT + 1) * 1000
-        memset(btCDB, 0.toByte(), 8)
-        memset(w_WaitPacket, 0xAF.toByte(), 8)
-        Arrays.fill(m_abyPacketTmp, 0.toByte())
+        val wWaitpacket = ByteArray(8)
+        var wNlen: Int
+        var wDwtimeout = COMM_TIMEOUT
+        if (p_wCmd.toInt() == CMD_VERIFY_CODE || p_wCmd.toInt() == CMD_IDENTIFY_CODE || p_wCmd.toInt() == CMD_IDENTIFY_FREE_CODE || p_wCmd.toInt() == CMD_ENROLL_CODE || p_wCmd.toInt() == CMD_ENROLL_ONETIME_CODE) wDwtimeout = (GD_MAX_FP_TIME_OUT + 1) * 1000
+        memSet(btCDB, 0.toByte(), 8)
+        memSet(wWaitpacket, 0xAF.toByte(), 8)
+        Arrays.fill(mAbypackettmp, 0.toByte())
         do {
             btCDB[0] = 0xEF.toByte()
             btCDB[1] = 0x15
-            w_nLen = 6
-            if (!m_usbBase.UsbSCSIRead(btCDB, 8, m_abyPacket, w_nLen, w_dwTimeOut)) {
+            wNlen = 6
+            if (!mUsbbase.UsbSCSIRead(btCDB, 8, mAbyPacket, wNlen, wDwtimeout)) {
                 return false
             }
             SystemClock.sleep(COMM_SLEEP_TIME.toLong())
-        } while (memcmp(m_abyPacket, w_WaitPacket, 6) == true)
+        } while (memcmp(mAbyPacket, wWaitpacket, 6))
         do {
-            w_nLen = GetDataLen() + 2
-            if (USB_ReceiveRawData(m_abyPacketTmp, w_nLen) == false) {
+            wNlen = getDataLen() + 2
+            if (!usbReceiveRawData(mAbypackettmp, wNlen)) {
                 return false
             }
-            System.arraycopy(m_abyPacketTmp, 0, m_abyPacket, 6, w_nLen)
+            System.arraycopy(mAbypackettmp, 0, mAbyPacket, 6, wNlen)
             SystemClock.sleep(COMM_SLEEP_TIME.toLong())
-        } while (memcmp(m_abyPacket, w_WaitPacket, 4) == true)
-        return if (!CheckReceive(RCM_DATA_PREFIX_CODE.toShort(), p_wCmd)) {
-            false
-        } else true
+        } while (memcmp(mAbyPacket, wWaitpacket, 4))
+        return checkReceive(this, RCM_DATA_PREFIX_CODE.toShort(), p_wCmd)
     }
     /** */
     /** */
-    fun USB_SendDataPacket(wCMD: Short): Boolean {
+    fun usbSendDataPacket(wCMD: Short): Boolean {
         val btCDB = ByteArray(8)
-        val w_wLen = (GetDataPacketLen() + 2).toShort()
-        memset(btCDB, 0.toByte(), 8)
+        val wWlen = (getDataPacketLen() + 2).toShort()
+        memSet(btCDB, 0.toByte(), 8)
         btCDB[0] = 0xEF.toByte()
         btCDB[1] = 0x13
-        btCDB[4] = (w_wLen.toInt() and 0xFF).toByte()
-        btCDB[5] = (w_wLen.toInt() and 0xFF00 shr 8 and 0xFF).toByte()
-        return if (!m_usbBase.UsbSCSIWrite(btCDB, 8, m_abyPacket, GetDataPacketLen() + 2, SCSI_TIMEOUT)) false else USB_ReceiveDataAck(wCMD)
+        btCDB[4] = (wWlen.toInt() and 0xFF).toByte()
+        btCDB[5] = (wWlen.toInt() and 0xFF00 shr 8 and 0xFF).toByte()
+        return if (!mUsbbase.UsbSCSIWrite(btCDB, 8, mAbyPacket, getDataPacketLen() + 2, SCSI_TIMEOUT)) false else usbReceiveDataAck(wCMD)
     }
     /** */
     /** */
-    fun USB_ReceiveDataPacket(wCMD: Short): Boolean {
-        return USB_ReceiveDataAck(wCMD)
+    fun usbReceiveDataPacket(wCMD: Short): Boolean {
+        return usbReceiveDataAck(wCMD)
     }
     /** */
     /** */
-    fun USB_ReceiveRawData(pBuffer: ByteArray?, nDataLen: Int): Boolean {
+    private fun usbReceiveRawData(pBuffer: ByteArray?, nDataLen: Int): Boolean {
         val btCDB = ByteArray(8)
-        memset(btCDB, 0.toByte(), 8)
+        memSet(btCDB, 0.toByte(), 8)
         btCDB[0] = 0xEF.toByte()
         btCDB[1] = 0x14.toByte()
-        return if (!m_usbBase.UsbSCSIRead(btCDB, 8, pBuffer, nDataLen, SCSI_TIMEOUT)) {
-            false
-        } else true
+        return mUsbbase.UsbSCSIRead(btCDB, 8, pBuffer, nDataLen, SCSI_TIMEOUT)
     }
     /** */
     /** */
-    fun USB_ReceiveImage(p_pBuffer: ByteArray?, p_dwDataLen: Int): Boolean {
+    fun usbReceiveImage(p_pBuffer: ByteArray, p_dwDataLen: Int): Boolean {
         val btCDB = ByteArray(8)
-        val w_WaitPacket = ByteArray(8)
-        var w_nI: Int
-        var w_nIndex: Int
-        var w_nRemainCount: Int
-        val w_pTmpImgBuf = ByteArray(ONCE_UP_IMAGE_UINT)
-        memset(btCDB, 0.toByte(), 8)
-        memset(w_WaitPacket, 0xAF.toByte(), 8)
+        val wWaitpacket = ByteArray(8)
+        var wNi: Int
+        var wNindex: Int
+        var wNremaincount: Int
+        val wPtmpimgbuf = ByteArray(ONCE_UP_IMAGE_UINT)
+        memSet(btCDB, 0.toByte(), 8)
+        memSet(wWaitpacket, 0xAF.toByte(), 8)
         if (p_dwDataLen == 208 * 288 || p_dwDataLen == 242 * 266 || p_dwDataLen == 202 * 258 || p_dwDataLen == 256 * 288) {
-            w_nIndex = 0
-            w_nRemainCount = p_dwDataLen
-            w_nI = 0
-            while (w_nRemainCount > ONCE_UP_IMAGE_UINT) {
+            wNindex = 0
+            wNremaincount = p_dwDataLen
+            wNi = 0
+            while (wNremaincount > ONCE_UP_IMAGE_UINT) {
                 btCDB[0] = 0xEF.toByte()
                 btCDB[1] = 0x16
-                btCDB[2] = (w_nI and 0xFF).toByte()
-                if (!m_usbBase.UsbSCSIRead(btCDB, 8, w_pTmpImgBuf, ONCE_UP_IMAGE_UINT, SCSI_TIMEOUT)) return false
-                System.arraycopy(w_pTmpImgBuf, 0, p_pBuffer, w_nIndex, ONCE_UP_IMAGE_UINT)
-                w_nRemainCount -= ONCE_UP_IMAGE_UINT
-                w_nIndex += ONCE_UP_IMAGE_UINT
-                w_nI++
+                btCDB[2] = (wNi and 0xFF).toByte()
+                if (!mUsbbase.UsbSCSIRead(btCDB, 8, wPtmpimgbuf, ONCE_UP_IMAGE_UINT, SCSI_TIMEOUT)) return false
+                System.arraycopy(wPtmpimgbuf, 0, p_pBuffer, wNindex, ONCE_UP_IMAGE_UINT)
+                wNremaincount -= ONCE_UP_IMAGE_UINT
+                wNindex += ONCE_UP_IMAGE_UINT
+                wNi++
             }
             btCDB[0] = 0xEF.toByte()
             btCDB[1] = 0x16
-            btCDB[2] = (w_nI and 0xFF).toByte()
-            if (!m_usbBase.UsbSCSIRead(btCDB, 8, w_pTmpImgBuf, w_nRemainCount, SCSI_TIMEOUT)) return false
-            System.arraycopy(w_pTmpImgBuf, 0, p_pBuffer, w_nIndex, w_nRemainCount)
+            btCDB[2] = (wNi and 0xFF).toByte()
+            if (!mUsbbase.UsbSCSIRead(btCDB, 8, wPtmpimgbuf, wNremaincount, SCSI_TIMEOUT)) return false
+            System.arraycopy(wPtmpimgbuf, 0, p_pBuffer, wNindex, wNremaincount)
         }
         return true
     }
     /** */
     /** */
-    fun USB_DownImage(pBuf: ByteArray?, nBufLen: Int): Boolean {
-        val w_pImgBuf = ByteArray(ONCE_UP_IMAGE_UINT)
-        var w_nI: Int
-        var w_nIndex = 0
-        var w_nRemainCount: Int
+    fun usbDownImage(pBuf: ByteArray?, nBufLen: Int): Boolean {
+        val wpImgBuf = ByteArray(ONCE_UP_IMAGE_UINT)
         val btCDB = ByteArray(8)
-        w_nIndex = 0
-        w_nRemainCount = nBufLen
-        w_nI = 0
-        memset(btCDB, 0.toByte(), 8)
-        while (w_nRemainCount > ONCE_UP_IMAGE_UINT) {
+        var wnIndex = 0
+        var wnRemainCount: Int = nBufLen
+        var wnI = 0
+        memSet(btCDB, 0.toByte(), 8)
+        while (wnRemainCount > ONCE_UP_IMAGE_UINT) {
             btCDB[0] = 0xEF.toByte()
             btCDB[1] = 0x17
             btCDB[2] = 0
-            btCDB[3] = (w_nI and 0xFF).toByte()
-            btCDB[4] = LOBYTE((ONCE_UP_IMAGE_UINT and 0x00FF).toShort())
-            btCDB[5] = HIBYTE((ONCE_UP_IMAGE_UINT and 0xFF00).toShort())
-            System.arraycopy(pBuf!!, w_nIndex, w_pImgBuf, 0, ONCE_UP_IMAGE_UINT)
-            if (!m_usbBase.UsbSCSIWrite(btCDB, 6, w_pImgBuf, ONCE_UP_IMAGE_UINT, SCSI_TIMEOUT)) return false
-            w_nRemainCount -= ONCE_UP_IMAGE_UINT
-            w_nIndex += ONCE_UP_IMAGE_UINT
-            w_nI++
+            btCDB[3] = (wnI and 0xFF).toByte()
+            btCDB[4] = loByte((ONCE_UP_IMAGE_UINT and 0x00FF).toShort())
+            btCDB[5] = hiByte((ONCE_UP_IMAGE_UINT and 0xFF00).toShort())
+            System.arraycopy(pBuf!!, wnIndex, wpImgBuf, 0, ONCE_UP_IMAGE_UINT)
+            if (!mUsbbase.UsbSCSIWrite(btCDB, 6, wpImgBuf, ONCE_UP_IMAGE_UINT, SCSI_TIMEOUT)) return false
+            wnRemainCount -= ONCE_UP_IMAGE_UINT
+            wnIndex += ONCE_UP_IMAGE_UINT
+            wnI++
         }
         btCDB[0] = 0xEF.toByte()
         btCDB[1] = 0x17
         btCDB[2] = 0
-        btCDB[3] = (w_nI and 0xFF).toByte()
-        btCDB[4] = LOBYTE((w_nRemainCount and 0x00FF).toShort())
-        btCDB[5] = HIBYTE((w_nRemainCount and 0xFF00).toShort())
-        System.arraycopy(pBuf!!, w_nIndex, w_pImgBuf, 0, w_nRemainCount)
-        return if (!m_usbBase.UsbSCSIWrite(btCDB, 6, w_pImgBuf, w_nRemainCount, SCSI_TIMEOUT)) false else true
+        btCDB[3] = (wnI and 0xFF).toByte()
+        btCDB[4] = loByte((wnRemainCount and 0x00FF).toShort())
+        btCDB[5] = hiByte((wnRemainCount and 0xFF00).toShort())
+        System.arraycopy(pBuf!!, wnIndex, wpImgBuf, 0, wnRemainCount)
+        return mUsbbase.UsbSCSIWrite(btCDB, 6, wpImgBuf, wnRemainCount, SCSI_TIMEOUT)
     }
 
 //    //------------------------------------------ UART Functions -------------------------------------//
@@ -954,42 +897,9 @@ class DevComm(private val m_parentAcitivity: Activity, usbConnState: IUsbConnSta
 //            }
 //        }
 //    }
-    /** */
-    /** */
-    fun memcmp(p1: ByteArray, p2: ByteArray, nLen: Int): Boolean {
-        var i: Int
-        i = 0
-        while (i < nLen) {
-            if (p1[i] != p2[i]) return false
-            i++
-        }
-        return true
-    }
-
-    fun memset(p1: ByteArray?, nValue: Byte, nLen: Int) {
-        Arrays.fill(p1, 0, nLen, nValue)
-    }
-
-    fun memcpy(p1: ByteArray?, nValue: Byte, nLen: Int) {
-        Arrays.fill(p1, 0, nLen, nValue)
-    }
-
-    fun MAKEWORD(low: Byte, high: Byte): Short {
-        val s: Short
-        s = (high.toInt() and 0x00FF shl 8 and 0x0000FF00 or (low.toInt() and 0x000000FF)).toShort()
-        return s
-    }
-
-    fun LOBYTE(s: Short): Byte {
-        return (s.toInt() and 0xFF).toByte()
-    }
-
-    fun HIBYTE(s: Short): Byte {
-        return (s.toInt() and 0xFF00 shr 8 and 0xFF).toByte()
-    }
 
     //----------------------------------------------------���ڿ�����
-    inner class SerialControl() : SerialHelper() {
+    inner class SerialControl : SerialHelper() {
         //		public SerialControl(String sPort, String sBaudRate){
 
         //			super(sPort, sBaudRate);
@@ -998,7 +908,7 @@ class DevComm(private val m_parentAcitivity: Activity, usbConnState: IUsbConnSta
 //ֱ��ˢ����ʾ��������������ʱ���������ԣ�����������ʾͬ����
 //���̶߳�ʱˢ����ʾ���Ի�ý���������ʾЧ�������ǽ��������ٶȿ�����ʾ�ٶ�ʱ����ʾ���ͺ�
 //����Ч�����-_-���̶߳�ʱˢ���Ժ�һЩ��
-            DispQueue.AddQueue(ComRecData) //�̶߳�ʱˢ����ʾ(�Ƽ�)
+            dispQueue.addQueue(ComRecData) //�̶߳�ʱˢ����ʾ(�Ƽ�)
             /*
                 runOnUiThread(new Runnable()//ֱ��ˢ����ʾ
                 {
@@ -1012,32 +922,106 @@ class DevComm(private val m_parentAcitivity: Activity, usbConnState: IUsbConnSta
 
     //----------------------------------------------------ˢ����ʾ�߳�
     inner class DispQueueThread : Thread() {
-        private val QueueList: Queue<ComBean> = LinkedList()
+        private val queueList: Queue<ComBean> = LinkedList()
         override fun run() {
             super.run()
             while (!isInterrupted) {
                 var i: Int
                 while (true) {
-                    var ComData: ComBean?
-                    if (QueueList.poll().also { ComData = it } == null) break
+                    var comData: ComBean?
+                    if (queueList.poll().also { comData = it } == null) break
                     i = 0
-                    while (m_bBufferHandle) {
+                    while (mBbufferhandle) {
                         i++
                         if (i > 10000) break
                     }
-                    m_bBufferHandle = true
-                    System.arraycopy(ComData!!.bRec!!, 0, m_pUARTReadBuf, m_nUARTReadLen, ComData!!.nSize)
-                    m_nUARTReadLen = m_nUARTReadLen + ComData!!.nSize
-                    m_bBufferHandle = false
+                    mBbufferhandle = true
+                    System.arraycopy(comData!!.bRec!!, 0, mPuartreadbuf, mNuartreadlen, comData!!.nSize)
+                    mNuartreadlen += comData!!.nSize
+                    mBbufferhandle = false
                     //		        	break;
                 }
             }
         }
 
         @Synchronized
-        fun AddQueue(ComData: ComBean) {
-            QueueList.add(ComData)
+        fun addQueue(ComData: ComBean) {
+            queueList.add(ComData)
         }
 
+    }
+
+    companion object {
+        /***************************************************************************
+         * Get CheckSum
+         */
+        private fun getCheckSum(devComm: DevComm, p_bCmdData: Boolean): Short {
+            var wni: Int
+            var wWRet = 0
+            if (p_bCmdData) {
+                wni = 0
+                while (wni < CMD_PACKET_LEN) {
+                    wWRet += (devComm.mAbyPacket[wni].toInt() and 0xFF).toShort()
+                    wni++
+                }
+            } else {
+                wni = 0
+                while (wni < devComm.getDataPacketLen()) {
+                    wWRet += (devComm.mAbyPacket[wni].toInt() and 0xFF).toShort()
+                    wni++
+                }
+            }
+            return wWRet.toShort()
+        }
+
+        /***************************************************************************
+         * Check Packet
+         */
+        fun checkReceive(devComm: DevComm, p_wPrefix: Short, p_wCmd: Short): Boolean {
+            val wCheckSum: Short
+            // Check Prefix Code
+            val wTmpPrefix: Short = (devComm.mAbyPacket[1].toInt() shl 8 and 0x0000FF00 or (devComm.mAbyPacket[0].toInt() and 0x000000FF)).toShort()
+            val wTmpCmd: Short = (devComm.mAbyPacket[3].toInt() shl 8 and 0x0000FF00 or (devComm.mAbyPacket[2].toInt() and 0x000000FF)).toShort()
+            //    	if ( g_pPacketBuffer->wCMD_RCM != CMD_FP_CANCEL_CODE )
+            if (p_wPrefix != wTmpPrefix || p_wCmd != wTmpCmd) {
+                return false
+            }
+
+            val wLen: Short = if (p_wPrefix.toInt() == RCM_PREFIX_CODE) CMD_PACKET_LEN.toShort() else devComm.getDataPacketLen()
+            wCheckSum = (devComm.mAbyPacket[wLen + 1].toInt() shl 8 and 0x0000FF00 or (devComm.mAbyPacket[wLen.toInt()].toInt() and 0x000000FF)).toShort()
+            return wCheckSum == getCheckSum(devComm, p_wPrefix.toInt() == RCM_PREFIX_CODE)
+        }
+
+        /** */
+        fun memcmp(p1: ByteArray, p2: ByteArray, nLen: Int): Boolean {
+            var i = 0
+            while (i < nLen) {
+                if (p1[i] != p2[i]) return false
+                i++
+            }
+            return true
+        }
+
+        /** */
+
+        fun memSet(p1: ByteArray?, nValue: Byte, nLen: Int) {
+            Arrays.fill(p1!!, 0, nLen, nValue)
+        }
+
+//        fun memCpy(p1: ByteArray?, nValue: Byte, nLen: Int) {
+//            Arrays.fill(p1, 0, nLen, nValue)
+//        }
+
+        fun makeWord(low: Byte, high: Byte): Short {
+            return (high.toInt() and 0x00FF shl 8 and 0x0000FF00 or (low.toInt() and 0x000000FF)).toShort()
+        }
+
+        fun loByte(s: Short): Byte {
+            return (s.toInt() and 0xFF).toByte()
+        }
+
+        fun hiByte(s: Short): Byte {
+            return (s.toInt() and 0xFF00 shr 8 and 0xFF).toByte()
+        }
     }
 }
