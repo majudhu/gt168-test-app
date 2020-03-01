@@ -136,17 +136,22 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
             w_wPrefix = (m_devComm!!.m_abyPacket[1].toInt() shl 8 and 0x0000FF00 or (m_devComm!!.m_abyPacket[0].toInt() and 0x000000FF)).toShort()
             if (w_wPrefix == CMD_PREFIX_CODE.toShort()) {
                 if (m_dwCode != CMD_FP_CANCEL_CODE) {
-                    if (m_devComm!!.m_nConnected.toInt() == 1 || m_devComm!!.m_nConnected.toInt() == 3) w_blRet = m_devComm!!.UART_SendCommand(m_dwCode.toShort()) else if (m_devComm!!.m_nConnected.toInt() == 2) w_blRet = m_devComm!!.USB_SendPacket(m_dwCode.toShort())
+//                    if (m_devComm!!.m_nConnected.toInt() == 1 || m_devComm!!.m_nConnected.toInt() == 3) w_blRet = m_devComm!!.UART_SendCommand(m_dwCode.toShort()) else
+                    if (m_devComm!!.m_nConnected.toInt() == 2) w_blRet = m_devComm!!.USB_SendPacket(m_dwCode.toShort())
                 } else {
-                    if (m_devComm!!.m_nConnected.toInt() == 1 || m_devComm!!.m_nConnected.toInt() == 3) w_blRet = m_devComm!!.UART_ReceiveAck(m_dwCode.toShort(), true) else if (m_devComm!!.m_nConnected.toInt() == 2) w_blRet = m_devComm!!.USB_ReceiveAck(m_dwCode.toShort())
+//                    if (m_devComm!!.m_nConnected.toInt() == 1 || m_devComm!!.m_nConnected.toInt() == 3) w_blRet = m_devComm!!.UART_ReceiveAck(m_dwCode.toShort(), true) else
+                    if (m_devComm!!.m_nConnected.toInt() == 2) w_blRet = m_devComm!!.USB_ReceiveAck(m_dwCode.toShort())
                 }
             } else if (w_wPrefix == CMD_DATA_PREFIX_CODE.toShort()) {
-                if (m_devComm!!.m_nConnected.toInt() == 1 || m_devComm!!.m_nConnected.toInt() == 3) w_blRet = m_devComm!!.UART_SendDataPacket(m_dwCode.toShort()) else if (m_devComm!!.m_nConnected.toInt() == 2) w_blRet = m_devComm!!.USB_SendDataPacket(m_dwCode.toShort())
+//                if (m_devComm!!.m_nConnected.toInt() == 1 || m_devComm!!.m_nConnected.toInt() == 3) w_blRet = m_devComm!!.UART_SendDataPacket(m_dwCode.toShort()) else
+                if (m_devComm!!.m_nConnected.toInt() == 2) w_blRet = m_devComm!!.USB_SendDataPacket(m_dwCode.toShort())
             } else {
                 if (m_dwCode != CMD_FEATURE_OF_CAPTURED_FP_CODE) {
-                    if (m_devComm!!.m_nConnected.toInt() == 1 || m_devComm!!.m_nConnected.toInt() == 3) w_blRet = m_devComm!!.UART_ReceiveAck(m_dwCode.toShort(), true) else if (m_devComm!!.m_nConnected.toInt() == 2) w_blRet = m_devComm!!.USB_ReceiveAck(m_dwCode.toShort())
+//                    if (m_devComm!!.m_nConnected.toInt() == 1 || m_devComm!!.m_nConnected.toInt() == 3) w_blRet = m_devComm!!.UART_ReceiveAck(m_dwCode.toShort(), true) else
+                    if (m_devComm!!.m_nConnected.toInt() == 2) w_blRet = m_devComm!!.USB_ReceiveAck(m_dwCode.toShort())
                 } else {
-                    if (m_devComm!!.m_nConnected.toInt() == 1 || m_devComm!!.m_nConnected.toInt() == 3) w_blRet = m_devComm!!.UART_ReceiveDataPacket(CMD_FEATURE_OF_CAPTURED_FP_CODE.toShort()) else if (m_devComm!!.m_nConnected.toInt() == 2) w_blRet = m_devComm!!.USB_ReceiveDataPacket(CMD_FEATURE_OF_CAPTURED_FP_CODE.toShort())
+//                    if (m_devComm!!.m_nConnected.toInt() == 1 || m_devComm!!.m_nConnected.toInt() == 3) w_blRet = m_devComm!!.UART_ReceiveDataPacket(CMD_FEATURE_OF_CAPTURED_FP_CODE.toShort()) else
+                    if (m_devComm!!.m_nConnected.toInt() == 2) w_blRet = m_devComm!!.USB_ReceiveDataPacket(CMD_FEATURE_OF_CAPTURED_FP_CODE.toShort())
                 }
             }
             m_bSendResult = w_blRet
@@ -505,9 +510,10 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
             m_devComm!!.AddCheckSum2(true)
             //. Send Packet
             w_bRet = false
-            if (m_devComm!!.m_nConnected.toInt() == 1 || m_devComm!!.m_nConnected.toInt() == 3) {
-                w_bRet = m_devComm!!.UART_SendCommand2(CMD_FP_CANCEL_CODE.toShort())
-            } else if (m_devComm!!.m_nConnected.toInt() == 2) {
+//            if (m_devComm!!.m_nConnected.toInt() == 1 || m_devComm!!.m_nConnected.toInt() == 3) {
+//                w_bRet = m_devComm!!.UART_SendCommand2(CMD_FP_CANCEL_CODE.toShort())
+//            } else
+            if (m_devComm!!.m_nConnected.toInt() == 2) {
                 w_bRet = m_devComm!!.USB_SendPacket2(CMD_FP_CANCEL_CODE.toShort())
             }
             if (w_bRet != true) {
@@ -520,9 +526,10 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
             while (m_bCmdDone == false) {
                 SystemClock.sleep(1)
             }
-            if (m_devComm!!.m_nConnected.toInt() == 1 || m_devComm!!.m_nConnected.toInt() == 3) {
-                w_bRet = m_devComm!!.UART_ReceiveAck2(CMD_FP_CANCEL_CODE.toShort())
-            } else if (m_devComm!!.m_nConnected.toInt() == 2) {
+//            if (m_devComm!!.m_nConnected.toInt() == 1 || m_devComm!!.m_nConnected.toInt() == 3) {
+//                w_bRet = m_devComm!!.UART_ReceiveAck2(CMD_FP_CANCEL_CODE.toShort())
+//            } else
+            if (m_devComm!!.m_nConnected.toInt() == 2) {
                 w_bRet = m_devComm!!.USB_ReceiveAck2(CMD_FP_CANCEL_CODE.toShort())
             }
             m_strPost = if (w_bRet == true) {
@@ -643,46 +650,46 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
             }
             m_nImgWidth = (m_devComm!!.m_abyPacket[9].toInt() shl 8 and 0x0000FF00 or (m_devComm!!.m_abyPacket[8].toInt() and 0x000000FF))
             m_nImgHeight = (m_devComm!!.m_abyPacket[11].toInt() shl 8 and 0x0000FF00 or (m_devComm!!.m_abyPacket[10].toInt() and 0x000000FF))
-            if (m_devComm!!.m_nConnected.toInt() == 1 || m_devComm!!.m_nConnected.toInt() == 3) {
-                while (true) {
-                    w_blRet = m_devComm!!.UART_ReceiveDataPacket(CMD_UP_IMAGE_CODE.toShort())
-                    if (w_blRet == false) {
-                        m_bSendResult = w_blRet
-                        m_txtStatus.post(procRspPacket)
-                        m_bThreadWork = false
-                        return@Runnable  // goto
-                    } else {
-                        if (m_devComm!!.GetRetCode().toInt() == ERR_SUCCESS) {
-                            if (m_devComm!!.GetDataLen() > IMAGE_RECEIVE_UINT + 2) {
-                                m_bSendResult = w_blRet
-                                m_txtStatus.post(procRspPacket)
-                                m_bThreadWork = false
-                                return@Runnable  // goto
-                            } else {
-                                if (m_nImageBufOffset == 0) {
-                                    m_strPost = "Uploading image..."
-                                    m_txtStatus.post(runShowStatus)
-                                }
-                                System.arraycopy(m_devComm!!.m_abyPacket, 8, m_binImage, m_nImageBufOffset, m_devComm!!.GetDataLen() - 2)
-                                m_nImageBufOffset = m_nImageBufOffset + (m_devComm!!.GetDataLen() - 2)
-                                if (m_nImageBufOffset == m_nImgWidth * m_nImgHeight) {
-                                    m_bSendResult = w_blRet
-                                    m_txtStatus.post(procRspPacket)
-                                    m_bThreadWork = false
-                                    return@Runnable  // goto
-                                }
-                            }
-                        } else {
-                            m_bSendResult = w_blRet
-                            m_txtStatus.post(procRspPacket)
-                            m_bThreadWork = false
-                            return@Runnable  // goto
-                        }
-                    }
-                }
-            } else {
-                w_blRet = m_devComm!!.USB_ReceiveImage(m_binImage, m_nImgWidth * m_nImgHeight)
-            }
+//            if (m_devComm!!.m_nConnected.toInt() == 1 || m_devComm!!.m_nConnected.toInt() == 3) {
+//                while (true) {
+//                    w_blRet = m_devComm!!.UART_ReceiveDataPacket(CMD_UP_IMAGE_CODE.toShort())
+//                    if (w_blRet == false) {
+//                        m_bSendResult = w_blRet
+//                        m_txtStatus.post(procRspPacket)
+//                        m_bThreadWork = false
+//                        return@Runnable  // goto
+//                    } else {
+//                        if (m_devComm!!.GetRetCode().toInt() == ERR_SUCCESS) {
+//                            if (m_devComm!!.GetDataLen() > IMAGE_RECEIVE_UINT + 2) {
+//                                m_bSendResult = w_blRet
+//                                m_txtStatus.post(procRspPacket)
+//                                m_bThreadWork = false
+//                                return@Runnable  // goto
+//                            } else {
+//                                if (m_nImageBufOffset == 0) {
+//                                    m_strPost = "Uploading image..."
+//                                    m_txtStatus.post(runShowStatus)
+//                                }
+//                                System.arraycopy(m_devComm!!.m_abyPacket, 8, m_binImage, m_nImageBufOffset, m_devComm!!.GetDataLen() - 2)
+//                                m_nImageBufOffset = m_nImageBufOffset + (m_devComm!!.GetDataLen() - 2)
+//                                if (m_nImageBufOffset == m_nImgWidth * m_nImgHeight) {
+//                                    m_bSendResult = w_blRet
+//                                    m_txtStatus.post(procRspPacket)
+//                                    m_bThreadWork = false
+//                                    return@Runnable  // goto
+//                                }
+//                            }
+//                        } else {
+//                            m_bSendResult = w_blRet
+//                            m_txtStatus.post(procRspPacket)
+//                            m_bThreadWork = false
+//                            return@Runnable  // goto
+//                        }
+//                    }
+//                }
+//            } else {
+            w_blRet = m_devComm!!.USB_ReceiveImage(m_binImage, m_nImgWidth * m_nImgHeight)
+//            }
             m_bSendResult = w_blRet
             m_txtStatus.post(procRspPacket)
             m_bThreadWork = false
@@ -716,56 +723,56 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
             DisplayResponsePacket(CMD_IDENTIFY_WITH_IMAGE_CODE.toShort())
             return 1
         }
-        if (m_devComm!!.m_nConnected.toInt() == 1 || m_devComm!!.m_nConnected.toInt() == 3) {
-            m_strPost = "Downloading image..."
-            m_txtStatus.post(runShowStatus)
-            w_nImgSize = m_nImgWidth * m_nImgHeight
-            n = w_nImgSize / IMAGE_RECEIVE_UINT
-            r = w_nImgSize % IMAGE_RECEIVE_UINT
-            i = 0
-            while (i < n) {
-                //. Assemble data packet
-                m_devComm!!.InitPacket(CMD_IDENTIFY_WITH_IMAGE_CODE.toShort(), false)
-                m_devComm!!.SetDataLen((0x0004 + GD_RECORD_SIZE).toShort())
-                m_devComm!!.m_abyPacket[6] = m_devComm!!.LOBYTE(i.toShort())
-                m_devComm!!.m_abyPacket[7] = m_devComm!!.HIBYTE(i.toShort())
-                m_devComm!!.m_abyPacket[8] = m_devComm!!.LOBYTE(IMAGE_RECEIVE_UINT.toShort())
-                m_devComm!!.m_abyPacket[9] = m_devComm!!.HIBYTE(IMAGE_RECEIVE_UINT.toShort())
-                System.arraycopy(m_binImage!!, i * IMAGE_RECEIVE_UINT, m_devComm!!.m_abyPacket, 10, IMAGE_RECEIVE_UINT)
-                m_devComm!!.AddCheckSum(false)
-                w_blRet = m_devComm!!.UART_SendDataPacket(CMD_IDENTIFY_WITH_IMAGE_CODE.toShort())
-                if (!w_blRet) {
-                    CloseDevice()
-                    return 1
-                }
-                m_strPost = String.format("%d%%...", (i + 1) * IMAGE_RECEIVE_UINT * 100 / w_nImgSize)
-                m_txtStatus.post(runShowStatus)
-                i++
-            }
-            if (r > 0) {
-                m_devComm!!.InitPacket(CMD_IDENTIFY_WITH_IMAGE_CODE.toShort(), false)
-                m_devComm!!.SetDataLen((0x0004 + GD_RECORD_SIZE).toShort())
-                m_devComm!!.m_abyPacket[6] = m_devComm!!.LOBYTE(i.toShort())
-                m_devComm!!.m_abyPacket[7] = m_devComm!!.HIBYTE(i.toShort())
-                m_devComm!!.m_abyPacket[8] = m_devComm!!.LOBYTE(r.toShort())
-                m_devComm!!.m_abyPacket[9] = m_devComm!!.HIBYTE(r.toShort())
-                System.arraycopy(m_binImage!!, i * IMAGE_RECEIVE_UINT, m_devComm!!.m_abyPacket, 10, r)
-                m_devComm!!.AddCheckSum(false)
-                w_blRet = m_devComm!!.UART_SendDataPacket(CMD_IDENTIFY_WITH_IMAGE_CODE.toShort())
-                if (!w_blRet) {
-                    CloseDevice()
-                    return 1
-                }
-            }
-            m_strPost = "100%..."
-            m_txtStatus.post(runShowStatus)
-        } else {
-            w_blRet = m_devComm!!.USB_DownImage(m_binImage, m_nImgWidth * m_nImgHeight)
-            if (!w_blRet) {
-                CloseDevice()
-                return 1
-            }
+//        if (m_devComm!!.m_nConnected.toInt() == 1 || m_devComm!!.m_nConnected.toInt() == 3) {
+//            m_strPost = "Downloading image..."
+//            m_txtStatus.post(runShowStatus)
+//            w_nImgSize = m_nImgWidth * m_nImgHeight
+//            n = w_nImgSize / IMAGE_RECEIVE_UINT
+//            r = w_nImgSize % IMAGE_RECEIVE_UINT
+//            i = 0
+//            while (i < n) {
+//                //. Assemble data packet
+//                m_devComm!!.InitPacket(CMD_IDENTIFY_WITH_IMAGE_CODE.toShort(), false)
+//                m_devComm!!.SetDataLen((0x0004 + GD_RECORD_SIZE).toShort())
+//                m_devComm!!.m_abyPacket[6] = m_devComm!!.LOBYTE(i.toShort())
+//                m_devComm!!.m_abyPacket[7] = m_devComm!!.HIBYTE(i.toShort())
+//                m_devComm!!.m_abyPacket[8] = m_devComm!!.LOBYTE(IMAGE_RECEIVE_UINT.toShort())
+//                m_devComm!!.m_abyPacket[9] = m_devComm!!.HIBYTE(IMAGE_RECEIVE_UINT.toShort())
+//                System.arraycopy(m_binImage!!, i * IMAGE_RECEIVE_UINT, m_devComm!!.m_abyPacket, 10, IMAGE_RECEIVE_UINT)
+//                m_devComm!!.AddCheckSum(false)
+//                w_blRet = m_devComm!!.UART_SendDataPacket(CMD_IDENTIFY_WITH_IMAGE_CODE.toShort())
+//                if (!w_blRet) {
+//                    CloseDevice()
+//                    return 1
+//                }
+//                m_strPost = String.format("%d%%...", (i + 1) * IMAGE_RECEIVE_UINT * 100 / w_nImgSize)
+//                m_txtStatus.post(runShowStatus)
+//                i++
+//            }
+//            if (r > 0) {
+//                m_devComm!!.InitPacket(CMD_IDENTIFY_WITH_IMAGE_CODE.toShort(), false)
+//                m_devComm!!.SetDataLen((0x0004 + GD_RECORD_SIZE).toShort())
+//                m_devComm!!.m_abyPacket[6] = m_devComm!!.LOBYTE(i.toShort())
+//                m_devComm!!.m_abyPacket[7] = m_devComm!!.HIBYTE(i.toShort())
+//                m_devComm!!.m_abyPacket[8] = m_devComm!!.LOBYTE(r.toShort())
+//                m_devComm!!.m_abyPacket[9] = m_devComm!!.HIBYTE(r.toShort())
+//                System.arraycopy(m_binImage!!, i * IMAGE_RECEIVE_UINT, m_devComm!!.m_abyPacket, 10, r)
+//                m_devComm!!.AddCheckSum(false)
+//                w_blRet = m_devComm!!.UART_SendDataPacket(CMD_IDENTIFY_WITH_IMAGE_CODE.toShort())
+//                if (!w_blRet) {
+//                    CloseDevice()
+//                    return 1
+//                }
+//            }
+//            m_strPost = "100%..."
+//            m_txtStatus.post(runShowStatus)
+//        } else {
+        w_blRet = m_devComm!!.USB_DownImage(m_binImage, m_nImgWidth * m_nImgHeight)
+        if (!w_blRet) {
+            CloseDevice()
+            return 1
         }
+//        }
         // Identify
         m_devComm!!.InitPacket(CMD_IDENTIFY_WITH_IMAGE_CODE.toShort(), false)
         m_devComm!!.SetDataLen(0x0004.toShort())
@@ -815,55 +822,55 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
             DisplayResponsePacket(CMD_VERIFY_WITH_IMAGE_CODE.toShort())
             return 1
         }
-        if (m_devComm!!.m_nConnected.toInt() == 1 || m_devComm!!.m_nConnected.toInt() == 3) {
-            m_strPost = "Downloading image..."
-            m_txtStatus.post(runShowStatus)
-            w_nImgSize = m_nImgWidth * m_nImgHeight
-            n = w_nImgSize / IMAGE_RECEIVE_UINT
-            r = w_nImgSize % IMAGE_RECEIVE_UINT
-            i = 0
-            while (i < n) {
-                //. Assemble data packet
-                m_devComm!!.InitPacket(CMD_VERIFY_WITH_IMAGE_CODE.toShort(), false)
-                m_devComm!!.SetDataLen((0x0004 + GD_RECORD_SIZE).toShort())
-                m_devComm!!.m_abyPacket[6] = m_devComm!!.LOBYTE(i.toShort())
-                m_devComm!!.m_abyPacket[7] = m_devComm!!.HIBYTE(i.toShort())
-                m_devComm!!.m_abyPacket[8] = m_devComm!!.LOBYTE(IMAGE_RECEIVE_UINT.toShort())
-                m_devComm!!.m_abyPacket[9] = m_devComm!!.HIBYTE(IMAGE_RECEIVE_UINT.toShort())
-                System.arraycopy(m_binImage!!, i * IMAGE_RECEIVE_UINT, m_devComm!!.m_abyPacket, 10, IMAGE_RECEIVE_UINT)
-                m_devComm!!.AddCheckSum(false)
-                w_blRet = m_devComm!!.UART_SendDataPacket(CMD_VERIFY_WITH_IMAGE_CODE.toShort())
-                if (!w_blRet) {
-                    CloseDevice()
-                }
-                m_strPost = String.format("%d%%...", (i + 1) * IMAGE_RECEIVE_UINT * 100 / w_nImgSize)
-                runShowStatus.run()
-                m_txtStatus.post(runShowStatus)
-                i++
-            }
-            if (r > 0) {
-                m_devComm!!.InitPacket(CMD_VERIFY_WITH_IMAGE_CODE.toShort(), false)
-                m_devComm!!.SetDataLen((0x0004 + GD_RECORD_SIZE).toShort())
-                m_devComm!!.m_abyPacket[6] = m_devComm!!.LOBYTE(i.toShort())
-                m_devComm!!.m_abyPacket[7] = m_devComm!!.HIBYTE(i.toShort())
-                m_devComm!!.m_abyPacket[8] = m_devComm!!.LOBYTE(r.toShort())
-                m_devComm!!.m_abyPacket[9] = m_devComm!!.HIBYTE(r.toShort())
-                System.arraycopy(m_binImage!!, i * IMAGE_RECEIVE_UINT, m_devComm!!.m_abyPacket, 10, r)
-                m_devComm!!.AddCheckSum(false)
-                w_blRet = m_devComm!!.UART_SendDataPacket(CMD_VERIFY_WITH_IMAGE_CODE.toShort())
-                if (!w_blRet) {
-                    CloseDevice()
-                }
-            }
-            m_strPost = "100%..."
-            m_txtStatus.post(runShowStatus)
-        } else {
+//        if (m_devComm!!.m_nConnected.toInt() == 1 || m_devComm!!.m_nConnected.toInt() == 3) {
+//            m_strPost = "Downloading image..."
+//            m_txtStatus.post(runShowStatus)
+//            w_nImgSize = m_nImgWidth * m_nImgHeight
+//            n = w_nImgSize / IMAGE_RECEIVE_UINT
+//            r = w_nImgSize % IMAGE_RECEIVE_UINT
+//            i = 0
+//            while (i < n) {
+//                //. Assemble data packet
+//                m_devComm!!.InitPacket(CMD_VERIFY_WITH_IMAGE_CODE.toShort(), false)
+//                m_devComm!!.SetDataLen((0x0004 + GD_RECORD_SIZE).toShort())
+//                m_devComm!!.m_abyPacket[6] = m_devComm!!.LOBYTE(i.toShort())
+//                m_devComm!!.m_abyPacket[7] = m_devComm!!.HIBYTE(i.toShort())
+//                m_devComm!!.m_abyPacket[8] = m_devComm!!.LOBYTE(IMAGE_RECEIVE_UINT.toShort())
+//                m_devComm!!.m_abyPacket[9] = m_devComm!!.HIBYTE(IMAGE_RECEIVE_UINT.toShort())
+//                System.arraycopy(m_binImage!!, i * IMAGE_RECEIVE_UINT, m_devComm!!.m_abyPacket, 10, IMAGE_RECEIVE_UINT)
+//                m_devComm!!.AddCheckSum(false)
+//                w_blRet = m_devComm!!.UART_SendDataPacket(CMD_VERIFY_WITH_IMAGE_CODE.toShort())
+//                if (!w_blRet) {
+//                    CloseDevice()
+//                }
+//                m_strPost = String.format("%d%%...", (i + 1) * IMAGE_RECEIVE_UINT * 100 / w_nImgSize)
+//                runShowStatus.run()
+//                m_txtStatus.post(runShowStatus)
+//                i++
+//            }
+//            if (r > 0) {
+//                m_devComm!!.InitPacket(CMD_VERIFY_WITH_IMAGE_CODE.toShort(), false)
+//                m_devComm!!.SetDataLen((0x0004 + GD_RECORD_SIZE).toShort())
+//                m_devComm!!.m_abyPacket[6] = m_devComm!!.LOBYTE(i.toShort())
+//                m_devComm!!.m_abyPacket[7] = m_devComm!!.HIBYTE(i.toShort())
+//                m_devComm!!.m_abyPacket[8] = m_devComm!!.LOBYTE(r.toShort())
+//                m_devComm!!.m_abyPacket[9] = m_devComm!!.HIBYTE(r.toShort())
+//                System.arraycopy(m_binImage!!, i * IMAGE_RECEIVE_UINT, m_devComm!!.m_abyPacket, 10, r)
+//                m_devComm!!.AddCheckSum(false)
+//                w_blRet = m_devComm!!.UART_SendDataPacket(CMD_VERIFY_WITH_IMAGE_CODE.toShort())
+//                if (!w_blRet) {
+//                    CloseDevice()
+//                }
+//            }
+//            m_strPost = "100%..."
+//            m_txtStatus.post(runShowStatus)
+//        } else {
             w_blRet = m_devComm!!.USB_DownImage(m_binImage, m_nImgWidth * m_nImgHeight)
             if (!w_blRet) {
                 CloseDevice()
                 return 1
             }
-        }
+//        }
         // Identify
         m_devComm!!.InitPacket(CMD_VERIFY_WITH_IMAGE_CODE.toShort(), false)
         m_devComm!!.SetDataLen(0x0004.toShort())
@@ -981,13 +988,13 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
         w_nData2 = m_devComm!!.MAKEWORD(m_devComm!!.m_abyPacket[10], m_devComm!!.m_abyPacket[11])
         w_nSize = m_devComm!!.MAKEWORD(m_devComm!!.m_abyPacket[4], m_devComm!!.m_abyPacket[5])
         when (p_nCode.toInt()) {
-            CMD_CLEAR_TEMPLATE_CODE -> if (w_nRet.toInt() == ERR_SUCCESS ) {
+            CMD_CLEAR_TEMPLATE_CODE -> if (w_nRet.toInt() == ERR_SUCCESS) {
                 m_strPost = String.format("Result : Success\r\nTemplate No : %d", w_nData)
             } else {
                 m_strPost = String.format("Result : Fail\r\n")
                 m_strPost += GetErrorMsg(w_nData)
             }
-            CMD_UP_IMAGE_CODE -> if (w_nRet.toInt() == ERR_SUCCESS ) {
+            CMD_UP_IMAGE_CODE -> if (w_nRet.toInt() == ERR_SUCCESS) {
                 m_strPost = String.format("Result : Receive Image Success")
                 m_txtStatus.post(runDrawImage)
             } else {

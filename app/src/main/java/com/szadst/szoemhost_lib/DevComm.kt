@@ -11,9 +11,9 @@ import android.widget.Toast
 import android_serialport_api.ComBean
 import android_serialport_api.SerialHelper
 import android_serialport_api.SerialPortFinder
-import cn.wch.ch34xuartdriver.CH34xUARTDriver
-import com.szadst.szoemhost_lib.DevComm.DispQueueThread
-import com.szadst.szoemhost_lib.DevComm.SerialControl
+//import cn.wch.ch34xuartdriver.CH34xUARTDriver
+//import com.szadst.szoemhost_lib.DevComm.DispQueueThread
+//import com.szadst.szoemhost_lib.DevComm.SerialControl
 import java.io.IOException
 import java.security.InvalidParameterException
 import java.util.*
@@ -127,7 +127,7 @@ private const val UART_ACTION_USB_PERMISSION = "cn.wch.wchusbdriver.USB_PERMISSI
 //import com.szadst.szoemhost_lib.LibDebugManage;
 class DevComm(private val m_parentAcitivity: Activity, usbConnState: IUsbConnState, p_spDevice: Spinner) {
 
-    var m_uartDriver: CH34xUARTDriver
+    //    var m_uartDriver: CH34xUARTDriver
     var m_bSendPacketWork = false
     var m_nPacketSize = 0
     var m_bySrcDeviceID: Byte = 1
@@ -160,9 +160,9 @@ class DevComm(private val m_parentAcitivity: Activity, usbConnState: IUsbConnSta
         // USB Init
         m_usbBase = UsbController(m_parentAcitivity, usbConnState, VID, PID)
         // UART Driver Init
-        m_uartDriver = CH34xUARTDriver(
-                mApplicationContext.getSystemService(Context.USB_SERVICE) as UsbManager, m_parentAcitivity,
-                UART_ACTION_USB_PERMISSION)
+//        m_uartDriver = CH34xUARTDriver(
+//                mApplicationContext.getSystemService(Context.USB_SERVICE) as UsbManager, m_parentAcitivity,
+//                UART_ACTION_USB_PERMISSION)
         // USB Support Check
 // 		if (!m_uartDriver.UsbFeatureSupported())
 // 		{
@@ -193,7 +193,7 @@ class DevComm(private val m_parentAcitivity: Activity, usbConnState: IUsbConnSta
         val entryValues = mSerialPortFinder.allDevicesPath
         val allDevices: MutableList<String?> = ArrayList()
         allDevices.add("USB")
-        allDevices.add("CH34xUART")
+//        allDevices.add("CH34xUART")
         for (i in entryValues!!.indices) {
             allDevices.add(entryValues!![i])
             //			LibDebugManage.WriteLog2(entryValues[i]);
@@ -209,7 +209,7 @@ class DevComm(private val m_parentAcitivity: Activity, usbConnState: IUsbConnSta
         val entryValues = mSerialPortFinder.allDevicesPath
         val allDevices: MutableList<String?> = ArrayList()
         allDevices.add("USB")
-        allDevices.add("CH34xUART")
+//        allDevices.add("CH34xUART")
         for (i in entryValues!!.indices) {
             allDevices.add(entryValues[i])
         }
@@ -229,30 +229,32 @@ class DevComm(private val m_parentAcitivity: Activity, usbConnState: IUsbConnSta
             if (!m_usbBase.IsInit()) m_usbBase.init()
             if (!m_usbBase.IsInit()) return false
             m_nConnected = 2
-        } else if (p_szDevice === "CH34xUART") // UART
-        {
-            if (!m_uartDriver.ResumeUsbList()) // ResumeUsbList��������ö��CH34X�豸�Լ�������豸
-            {
-                Toast.makeText(mApplicationContext, "Open UART device failed!", Toast.LENGTH_SHORT).show()
-                m_uartDriver.CloseDevice()
-                return false
-            } else {
-                if (!m_uartDriver.UartInit()) {
-                    Toast.makeText(mApplicationContext, "Initialize UART device failed!", Toast.LENGTH_SHORT).show()
-                    Toast.makeText(mApplicationContext, "Open UART device failed!", Toast.LENGTH_SHORT).show()
-                    return false
-                }
-                if (!m_uartDriver.SetConfig(p_nBaudrate, 8.toByte(), 1.toByte(), 0.toByte(), 0.toByte())) {
-                    Toast.makeText(mApplicationContext, "Configuration UART device failed!", Toast.LENGTH_SHORT).show()
-                    Toast.makeText(mApplicationContext, "Open UART device failed!", Toast.LENGTH_SHORT).show()
-                    return false
-                }
-                Toast.makeText(mApplicationContext, "Open UART device success!", Toast.LENGTH_SHORT).show()
-                m_nConnected = 1
-                m_nUARTReadLen = 0
-                UART_ReadThread().start()
-            }
-        } else  // ttyUART
+        }
+//        else if (p_szDevice === "CH34xUART") // UART
+//        {
+//            if (!m_uartDriver.ResumeUsbList()) // ResumeUsbList��������ö��CH34X�豸�Լ�������豸
+//            {
+//                Toast.makeText(mApplicationContext, "Open UART device failed!", Toast.LENGTH_SHORT).show()
+//                m_uartDriver.CloseDevice()
+//                return false
+//            } else {
+//                if (!m_uartDriver.UartInit()) {
+//                    Toast.makeText(mApplicationContext, "Initialize UART device failed!", Toast.LENGTH_SHORT).show()
+//                    Toast.makeText(mApplicationContext, "Open UART device failed!", Toast.LENGTH_SHORT).show()
+//                    return false
+//                }
+//                if (!m_uartDriver.SetConfig(p_nBaudrate, 8.toByte(), 1.toByte(), 0.toByte(), 0.toByte())) {
+//                    Toast.makeText(mApplicationContext, "Configuration UART device failed!", Toast.LENGTH_SHORT).show()
+//                    Toast.makeText(mApplicationContext, "Open UART device failed!", Toast.LENGTH_SHORT).show()
+//                    return false
+//                }
+//                Toast.makeText(mApplicationContext, "Open UART device success!", Toast.LENGTH_SHORT).show()
+//                m_nConnected = 1
+//                m_nUARTReadLen = 0
+//                UART_ReadThread().start()
+//            }
+//        }
+        else  // ttyUART
         {
             m_SerialPort.port = p_szDevice
             m_SerialPort.baudRate = p_nBaudrate
@@ -278,7 +280,7 @@ class DevComm(private val m_parentAcitivity: Activity, usbConnState: IUsbConnSta
             return false
         } else if (m_nConnected.toInt() == 1) // UART
         {
-            m_uartDriver.CloseDevice()
+//            m_uartDriver.CloseDevice()
             m_nConnected = 0
         } else if (m_nConnected.toInt() == 2) // USB
         {
@@ -546,17 +548,21 @@ class DevComm(private val m_parentAcitivity: Activity, usbConnState: IUsbConnSta
 
     //--------------------------- Send, Receive Communication Packet Functions ---------------------//
     fun Send_Command(p_wCmd: Short): Boolean {
-        return if (m_nConnected.toInt() == 1 || m_nConnected.toInt() == 3) UART_SendCommand(p_wCmd) else if (m_nConnected.toInt() == 2) USB_SendPacket(p_wCmd) else false
+        return if (m_nConnected.toInt() == 2) USB_SendPacket(p_wCmd) else false
+//        if (m_nConnected.toInt() == 1 || m_nConnected.toInt() == 3) UART_SendCommand(p_wCmd) else
+
     }
     /** */
     /** */
     fun Send_DataPacket(p_wCmd: Short): Boolean {
-        return if (m_nConnected.toInt() == 1 || m_nConnected.toInt() == 3) UART_SendDataPacket(p_wCmd) else if (m_nConnected.toInt() == 2) USB_SendDataPacket(p_wCmd) else false
+        return if (m_nConnected.toInt() == 2) USB_SendDataPacket(p_wCmd) else false
+//        if (m_nConnected.toInt() == 1 || m_nConnected.toInt() == 3) UART_SendDataPacket(p_wCmd) else
     }
     /** */
     /** */
     fun Receive_DataPacket(p_wCmd: Short): Boolean {
-        return if (m_nConnected.toInt() == 1 || m_nConnected.toInt() == 3) UART_ReceiveDataPacket(p_wCmd) else if (m_nConnected.toInt() == 2) USB_ReceiveDataPacket(p_wCmd) else false
+        return if (m_nConnected.toInt() == 2) USB_ReceiveDataPacket(p_wCmd) else false
+//        if (m_nConnected.toInt() == 1 || m_nConnected.toInt() == 3) UART_ReceiveDataPacket(p_wCmd) else
     }
 
     //------------------------------------------ USB Functions -------------------------------------//
@@ -764,190 +770,190 @@ class DevComm(private val m_parentAcitivity: Activity, usbConnState: IUsbConnSta
         return if (!m_usbBase.UsbSCSIWrite(btCDB, 6, w_pImgBuf, w_nRemainCount, SCSI_TIMEOUT)) false else true
     }
 
-    //------------------------------------------ UART Functions -------------------------------------//
-    fun UART_SendCommand(p_wCmd: Short): Boolean {
-        var w_nResult = 0
-        if (m_nConnected.toInt() == 1) {
-            w_nResult = m_uartDriver.WriteData(m_abyPacket, CMD_PACKET_LEN + 2)
-            if (w_nResult < 0) {
-                return false
-            }
-        } else if (m_nConnected.toInt() == 3) {
-            val w_pData = ByteArray(CMD_PACKET_LEN + 2)
-            System.arraycopy(m_abyPacket, 0, w_pData, 0, CMD_PACKET_LEN + 2)
-            m_SerialPort.send(w_pData)
-        }
-        return UART_ReceiveAck(p_wCmd, true)
-    }
-    /** */
-    /** */
-    fun UART_SendCommand2(wCMD: Short): Boolean {
-        var w_nResult = 0
-        if (m_nConnected.toInt() == 1) {
-            w_nResult = m_uartDriver.WriteData(m_abyPacket2, CMD_PACKET_LEN + 2)
-            if (w_nResult < 0) {
-                return false
-            }
-        } else if (m_nConnected.toInt() == 3) {
-            val w_pData = ByteArray(CMD_PACKET_LEN + 2)
-            System.arraycopy(m_abyPacket2, 0, w_pData, 0, CMD_PACKET_LEN + 2)
-            m_SerialPort.send(w_pData)
-        }
-        return true
-    }
-    /** */
-    /** */
-    fun UART_ReceiveAck(p_wCmd: Short, p_bCmdData: Boolean): Boolean { //    	int	w_nResult = 0;
-        var w_nReadLen = 0
-        val w_nTotalLen = CMD_PACKET_LEN + 2
-        var w_nTmpLen: Int
-        val w_nTime: Long
-        var i: Int
-        w_nTime = System.currentTimeMillis()
-        while (w_nReadLen < w_nTotalLen) { //	    	w_nResult = m_uartDriver.ReadData(m_abyPacket, CMD_PACKET_LEN + 2);
-            if (System.currentTimeMillis() - w_nTime > 10000) {
-                m_nUARTReadLen = 0
-                return false
-            }
-            i = 0
-            while (m_bBufferHandle) {
-                i++
-                if (i < 10000) break
-            }
-            m_bBufferHandle = true
-            if (m_nUARTReadLen <= 0) continue
-            if (w_nTotalLen - w_nReadLen < m_nUARTReadLen) {
-                w_nTmpLen = w_nTotalLen - w_nReadLen
-                System.arraycopy(m_pUARTReadBuf, 0, m_abyPacket, w_nReadLen, w_nTmpLen)
-                w_nReadLen += w_nTmpLen
-                m_nUARTReadLen = m_nUARTReadLen - w_nTmpLen
-                System.arraycopy(m_pUARTReadBuf, w_nTmpLen, m_abyPacketTmp, 0, m_nUARTReadLen)
-                System.arraycopy(m_abyPacketTmp, 0, m_pUARTReadBuf, 0, m_nUARTReadLen)
-            } else {
-                System.arraycopy(m_pUARTReadBuf, 0, m_abyPacket, w_nReadLen, m_nUARTReadLen)
-                w_nReadLen += m_nUARTReadLen
-                m_nUARTReadLen = 0
-            }
-            m_bBufferHandle = false
-        }
-        return if (p_bCmdData) CheckReceive(RCM_PREFIX_CODE.toShort(), p_wCmd) else CheckReceive(RCM_DATA_PREFIX_CODE.toShort(), p_wCmd)
-    }
-    /** */
-    /** */
-    fun UART_ReceiveAck2(p_wCmd: Short): Boolean { //    	int	w_nResult = 0;
-        var w_nReadLen = 0
-        val w_nTotalLen = CMD_PACKET_LEN + 2
-        var w_nTmpLen: Int
-        val w_nTime: Long
-        w_nTime = System.currentTimeMillis()
-        while (w_nReadLen < w_nTotalLen) { //	    	w_nResult = m_uartDriver.ReadData(m_abyPacket2, CMD_PACKET_LEN + 2);
-            if (System.currentTimeMillis() - w_nTime > 10000) {
-                m_nUARTReadLen = 0
-                return false
-            }
-            if (m_nUARTReadLen <= 0) continue
-            if (w_nTotalLen - w_nReadLen < m_nUARTReadLen) {
-                w_nTmpLen = w_nTotalLen - w_nReadLen
-                System.arraycopy(m_pUARTReadBuf, 0, m_abyPacket2, w_nReadLen, w_nTmpLen)
-                w_nReadLen += w_nTmpLen
-                m_nUARTReadLen = m_nUARTReadLen - w_nTmpLen
-                System.arraycopy(m_pUARTReadBuf, w_nTmpLen, m_abyPacketTmp, 0, m_nUARTReadLen)
-                System.arraycopy(m_abyPacketTmp, 0, m_pUARTReadBuf, 0, m_nUARTReadLen)
-            } else {
-                System.arraycopy(m_pUARTReadBuf, 0, m_abyPacket2, w_nReadLen, m_nUARTReadLen)
-                w_nReadLen += m_nUARTReadLen
-                m_nUARTReadLen = 0
-            }
-        }
-        return true
-    }
-    /** */
-    /** */
-    fun UART_ReceiveDataAck(p_wCmd: Short): Boolean {
-        if (!UART_ReadDataN(m_abyPacket, 0, 6)) return false
-        return if (!UART_ReadDataN(m_abyPacket, 6, GetDataLen() + 2)) false else CheckReceive(RCM_DATA_PREFIX_CODE.toShort(), p_wCmd)
-    }
-    /** */
-    /** */
-    fun UART_SendDataPacket(p_wCmd: Short): Boolean {
-        var w_nSendCnt = 0
-        if (m_nConnected.toInt() == 1) {
-            w_nSendCnt = m_uartDriver.WriteData(m_abyPacket, GetDataLen() + 8)
-            if (w_nSendCnt < 0) return false
-        } else if (m_nConnected.toInt() == 3) {
-            val w_nLen = GetDataLen() + 8
-            val w_pData = ByteArray(w_nLen)
-            System.arraycopy(m_abyPacket, 0, w_pData, 0, w_nLen)
-            m_SerialPort.send(w_pData)
-        }
-        return UART_ReceiveDataAck(p_wCmd)
-    }
-    /** */
-    /** */
-    fun UART_ReceiveDataPacket(p_wCmd: Short): Boolean {
-        return UART_ReceiveDataAck(p_wCmd)
-    }
-    /** */
-    /** */
-    fun UART_ReceiveData(p_wCmd: Short, p_nDataLen: Int, p_pBuffer: ByteArray?): Boolean {
-        var w_nReceivedCnt: Int
-        var w_wPacketDataLen = 0
-        w_nReceivedCnt = 0
-        while (w_nReceivedCnt < p_nDataLen) {
-            w_wPacketDataLen = p_nDataLen - w_nReceivedCnt
-            if (w_wPacketDataLen > MAX_DATA_LEN) w_wPacketDataLen = MAX_DATA_LEN
-            if (UART_ReceiveDataPacket(p_wCmd) == false) return false
-            System.arraycopy(m_abyPacket, 8, p_pBuffer, w_nReceivedCnt, GetDataLen() + 4)
-            w_nReceivedCnt += w_wPacketDataLen
-        }
-        return true
-    }
-    /** */
-    /** */
-    fun UART_ReadDataN(p_pData: ByteArray?, p_nStart: Int, p_nLen: Int): Boolean { //    	int		w_nAckCnt = 0;
-        var w_nRecvLen: Int
-        var w_nTotalRecvLen: Int
-        var w_nTmpLen: Int
-        val w_nTime: Long
-        w_nRecvLen = p_nLen
-        w_nTotalRecvLen = 0
-        w_nTime = System.currentTimeMillis()
-        while (w_nTotalRecvLen < p_nLen) { //    		w_nAckCnt = m_uartDriver.ReadData(m_abyPacketTmp, w_nRecvLen);
-//    		if (w_nAckCnt < 0)
-//    			return false;
-            if (System.currentTimeMillis() - w_nTime > 10000) {
-                m_nUARTReadLen = 0
-                return false
-            }
-            if (m_nUARTReadLen <= 0) continue
-            if (p_nLen - w_nTotalRecvLen < m_nUARTReadLen) {
-                w_nTmpLen = p_nLen - w_nTotalRecvLen
-                System.arraycopy(m_pUARTReadBuf, 0, p_pData, p_nStart + w_nTotalRecvLen, w_nTmpLen)
-                w_nRecvLen = w_nRecvLen - w_nTmpLen
-                w_nTotalRecvLen = w_nTotalRecvLen + w_nTmpLen
-                m_nUARTReadLen = m_nUARTReadLen - w_nTmpLen
-                System.arraycopy(m_pUARTReadBuf, w_nTmpLen, m_abyPacketTmp, 0, m_nUARTReadLen)
-                System.arraycopy(m_abyPacketTmp, 0, m_pUARTReadBuf, 0, m_nUARTReadLen)
-            } else {
-                System.arraycopy(m_pUARTReadBuf, 0, p_pData, p_nStart + w_nTotalRecvLen, m_nUARTReadLen)
-                w_nRecvLen = w_nRecvLen - m_nUARTReadLen
-                w_nTotalRecvLen = w_nTotalRecvLen + m_nUARTReadLen
-                m_nUARTReadLen = 0
-            }
-        }
-        return true
-    }
-    /** */
-    /** */
-    inner class UART_ReadThread : Thread() {
-        override fun run() {
-            while (true) {
-                if (m_nConnected.toInt() != 1) break
-                if (m_nUARTReadLen > 0) continue
-                m_nUARTReadLen = m_uartDriver.ReadData(m_pUARTReadBuf, MAX_DATA_LEN)
-            }
-        }
-    }
+//    //------------------------------------------ UART Functions -------------------------------------//
+//    fun UART_SendCommand(p_wCmd: Short): Boolean {
+//        var w_nResult = 0
+//        if (m_nConnected.toInt() == 1) {
+//            w_nResult = m_uartDriver.WriteData(m_abyPacket, CMD_PACKET_LEN + 2)
+//            if (w_nResult < 0) {
+//                return false
+//            }
+//        } else if (m_nConnected.toInt() == 3) {
+//            val w_pData = ByteArray(CMD_PACKET_LEN + 2)
+//            System.arraycopy(m_abyPacket, 0, w_pData, 0, CMD_PACKET_LEN + 2)
+//            m_SerialPort.send(w_pData)
+//        }
+//        return UART_ReceiveAck(p_wCmd, true)
+//    }
+//    /** */
+//    /** */
+//    fun UART_SendCommand2(wCMD: Short): Boolean {
+//        var w_nResult = 0
+//        if (m_nConnected.toInt() == 1) {
+//            w_nResult = m_uartDriver.WriteData(m_abyPacket2, CMD_PACKET_LEN + 2)
+//            if (w_nResult < 0) {
+//                return false
+//            }
+//        } else if (m_nConnected.toInt() == 3) {
+//            val w_pData = ByteArray(CMD_PACKET_LEN + 2)
+//            System.arraycopy(m_abyPacket2, 0, w_pData, 0, CMD_PACKET_LEN + 2)
+//            m_SerialPort.send(w_pData)
+//        }
+//        return true
+//    }
+//    /** */
+//    /** */
+//    fun UART_ReceiveAck(p_wCmd: Short, p_bCmdData: Boolean): Boolean { //    	int	w_nResult = 0;
+//        var w_nReadLen = 0
+//        val w_nTotalLen = CMD_PACKET_LEN + 2
+//        var w_nTmpLen: Int
+//        val w_nTime: Long
+//        var i: Int
+//        w_nTime = System.currentTimeMillis()
+//        while (w_nReadLen < w_nTotalLen) { //	    	w_nResult = m_uartDriver.ReadData(m_abyPacket, CMD_PACKET_LEN + 2);
+//            if (System.currentTimeMillis() - w_nTime > 10000) {
+//                m_nUARTReadLen = 0
+//                return false
+//            }
+//            i = 0
+//            while (m_bBufferHandle) {
+//                i++
+//                if (i < 10000) break
+//            }
+//            m_bBufferHandle = true
+//            if (m_nUARTReadLen <= 0) continue
+//            if (w_nTotalLen - w_nReadLen < m_nUARTReadLen) {
+//                w_nTmpLen = w_nTotalLen - w_nReadLen
+//                System.arraycopy(m_pUARTReadBuf, 0, m_abyPacket, w_nReadLen, w_nTmpLen)
+//                w_nReadLen += w_nTmpLen
+//                m_nUARTReadLen = m_nUARTReadLen - w_nTmpLen
+//                System.arraycopy(m_pUARTReadBuf, w_nTmpLen, m_abyPacketTmp, 0, m_nUARTReadLen)
+//                System.arraycopy(m_abyPacketTmp, 0, m_pUARTReadBuf, 0, m_nUARTReadLen)
+//            } else {
+//                System.arraycopy(m_pUARTReadBuf, 0, m_abyPacket, w_nReadLen, m_nUARTReadLen)
+//                w_nReadLen += m_nUARTReadLen
+//                m_nUARTReadLen = 0
+//            }
+//            m_bBufferHandle = false
+//        }
+//        return if (p_bCmdData) CheckReceive(RCM_PREFIX_CODE.toShort(), p_wCmd) else CheckReceive(RCM_DATA_PREFIX_CODE.toShort(), p_wCmd)
+//    }
+//    /** */
+//    /** */
+//    fun UART_ReceiveAck2(p_wCmd: Short): Boolean { //    	int	w_nResult = 0;
+//        var w_nReadLen = 0
+//        val w_nTotalLen = CMD_PACKET_LEN + 2
+//        var w_nTmpLen: Int
+//        val w_nTime: Long
+//        w_nTime = System.currentTimeMillis()
+//        while (w_nReadLen < w_nTotalLen) { //	    	w_nResult = m_uartDriver.ReadData(m_abyPacket2, CMD_PACKET_LEN + 2);
+//            if (System.currentTimeMillis() - w_nTime > 10000) {
+//                m_nUARTReadLen = 0
+//                return false
+//            }
+//            if (m_nUARTReadLen <= 0) continue
+//            if (w_nTotalLen - w_nReadLen < m_nUARTReadLen) {
+//                w_nTmpLen = w_nTotalLen - w_nReadLen
+//                System.arraycopy(m_pUARTReadBuf, 0, m_abyPacket2, w_nReadLen, w_nTmpLen)
+//                w_nReadLen += w_nTmpLen
+//                m_nUARTReadLen = m_nUARTReadLen - w_nTmpLen
+//                System.arraycopy(m_pUARTReadBuf, w_nTmpLen, m_abyPacketTmp, 0, m_nUARTReadLen)
+//                System.arraycopy(m_abyPacketTmp, 0, m_pUARTReadBuf, 0, m_nUARTReadLen)
+//            } else {
+//                System.arraycopy(m_pUARTReadBuf, 0, m_abyPacket2, w_nReadLen, m_nUARTReadLen)
+//                w_nReadLen += m_nUARTReadLen
+//                m_nUARTReadLen = 0
+//            }
+//        }
+//        return true
+//    }
+//    /** */
+//    /** */
+//    fun UART_ReceiveDataAck(p_wCmd: Short): Boolean {
+//        if (!UART_ReadDataN(m_abyPacket, 0, 6)) return false
+//        return if (!UART_ReadDataN(m_abyPacket, 6, GetDataLen() + 2)) false else CheckReceive(RCM_DATA_PREFIX_CODE.toShort(), p_wCmd)
+//    }
+//    /** */
+//    /** */
+//    fun UART_SendDataPacket(p_wCmd: Short): Boolean {
+//        var w_nSendCnt = 0
+//        if (m_nConnected.toInt() == 1) {
+//            w_nSendCnt = m_uartDriver.WriteData(m_abyPacket, GetDataLen() + 8)
+//            if (w_nSendCnt < 0) return false
+//        } else if (m_nConnected.toInt() == 3) {
+//            val w_nLen = GetDataLen() + 8
+//            val w_pData = ByteArray(w_nLen)
+//            System.arraycopy(m_abyPacket, 0, w_pData, 0, w_nLen)
+//            m_SerialPort.send(w_pData)
+//        }
+//        return UART_ReceiveDataAck(p_wCmd)
+//    }
+//    /** */
+//    /** */
+//    fun UART_ReceiveDataPacket(p_wCmd: Short): Boolean {
+//        return UART_ReceiveDataAck(p_wCmd)
+//    }
+//    /** */
+//    /** */
+//    fun UART_ReceiveData(p_wCmd: Short, p_nDataLen: Int, p_pBuffer: ByteArray?): Boolean {
+//        var w_nReceivedCnt: Int
+//        var w_wPacketDataLen = 0
+//        w_nReceivedCnt = 0
+//        while (w_nReceivedCnt < p_nDataLen) {
+//            w_wPacketDataLen = p_nDataLen - w_nReceivedCnt
+//            if (w_wPacketDataLen > MAX_DATA_LEN) w_wPacketDataLen = MAX_DATA_LEN
+//            if (UART_ReceiveDataPacket(p_wCmd) == false) return false
+//            System.arraycopy(m_abyPacket, 8, p_pBuffer, w_nReceivedCnt, GetDataLen() + 4)
+//            w_nReceivedCnt += w_wPacketDataLen
+//        }
+//        return true
+//    }
+//    /** */
+//    /** */
+//    fun UART_ReadDataN(p_pData: ByteArray?, p_nStart: Int, p_nLen: Int): Boolean { //    	int		w_nAckCnt = 0;
+//        var w_nRecvLen: Int
+//        var w_nTotalRecvLen: Int
+//        var w_nTmpLen: Int
+//        val w_nTime: Long
+//        w_nRecvLen = p_nLen
+//        w_nTotalRecvLen = 0
+//        w_nTime = System.currentTimeMillis()
+//        while (w_nTotalRecvLen < p_nLen) { //    		w_nAckCnt = m_uartDriver.ReadData(m_abyPacketTmp, w_nRecvLen);
+////    		if (w_nAckCnt < 0)
+////    			return false;
+//            if (System.currentTimeMillis() - w_nTime > 10000) {
+//                m_nUARTReadLen = 0
+//                return false
+//            }
+//            if (m_nUARTReadLen <= 0) continue
+//            if (p_nLen - w_nTotalRecvLen < m_nUARTReadLen) {
+//                w_nTmpLen = p_nLen - w_nTotalRecvLen
+//                System.arraycopy(m_pUARTReadBuf, 0, p_pData, p_nStart + w_nTotalRecvLen, w_nTmpLen)
+//                w_nRecvLen = w_nRecvLen - w_nTmpLen
+//                w_nTotalRecvLen = w_nTotalRecvLen + w_nTmpLen
+//                m_nUARTReadLen = m_nUARTReadLen - w_nTmpLen
+//                System.arraycopy(m_pUARTReadBuf, w_nTmpLen, m_abyPacketTmp, 0, m_nUARTReadLen)
+//                System.arraycopy(m_abyPacketTmp, 0, m_pUARTReadBuf, 0, m_nUARTReadLen)
+//            } else {
+//                System.arraycopy(m_pUARTReadBuf, 0, p_pData, p_nStart + w_nTotalRecvLen, m_nUARTReadLen)
+//                w_nRecvLen = w_nRecvLen - m_nUARTReadLen
+//                w_nTotalRecvLen = w_nTotalRecvLen + m_nUARTReadLen
+//                m_nUARTReadLen = 0
+//            }
+//        }
+//        return true
+//    }
+//    /** */
+//    /** */
+//    inner class UART_ReadThread : Thread() {
+//        override fun run() {
+//            while (true) {
+//                if (m_nConnected.toInt() != 1) break
+//                if (m_nUARTReadLen > 0) continue
+//                m_nUARTReadLen = m_uartDriver.ReadData(m_pUARTReadBuf, MAX_DATA_LEN)
+//            }
+//        }
+//    }
     /** */
     /** */
     fun memcmp(p1: ByteArray, p2: ByteArray, nLen: Int): Boolean {

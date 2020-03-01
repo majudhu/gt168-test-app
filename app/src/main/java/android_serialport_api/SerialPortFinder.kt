@@ -24,24 +24,18 @@ import java.util.*
 
 class SerialPortFinder {
     inner class Driver(val name: String, private val mDeviceRoot: String) {
-        var mDevices: Vector<File>? = null
+        private val mDevices = Vector<File>()
         val devices: Vector<File>
             get() {
-                if (mDevices == null) {
-                    mDevices = Vector()
-                    val dev = File("/dev")
-                    val files = dev.listFiles()
-                    var i: Int
-                    i = 0
-                    while (i < files.size) {
-                        if (files[i].absolutePath.startsWith(mDeviceRoot)) {
-                            Log.d(TAG, "Found new device: " + files[i])
-                            mDevices!!.add(files[i])
-                        }
-                        i++
+                val dev = File("/dev")
+                val files = dev.listFiles()
+                if (files != null) for (file in files)
+                    if (file.absolutePath.startsWith(mDeviceRoot)) {
+                        Log.d(TAG, "Found new device: $file")
+                        mDevices.add(file)
                     }
-                }
-                return mDevices!!
+
+                return mDevices
             }
 
     }
@@ -71,27 +65,27 @@ class SerialPortFinder {
         }
 
     // Parse each driver
-    val allDevices: Array<String>
-        get() {
-            val devices = Vector<String>()
-            // Parse each driver
-            val itdriv: Iterator<Driver>
-            try {
-                itdriv = drivers.iterator()
-                while (itdriv.hasNext()) {
-                    val driver = itdriv.next()
-                    val itdev: Iterator<File> = driver.devices.iterator()
-                    while (itdev.hasNext()) {
-                        val device = itdev.next().name
-                        val value = String.format("%s (%s)", device, driver.name)
-                        devices.add(value)
-                    }
-                }
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-            return devices.toTypedArray()
-        }
+//    val allDevices: Array<String>
+//        get() {
+//            val devices = Vector<String>()
+//            // Parse each driver
+//            val itdriv: Iterator<Driver>
+//            try {
+//                itdriv = drivers.iterator()
+//                while (itdriv.hasNext()) {
+//                    val driver = itdriv.next()
+//                    val itdev: Iterator<File> = driver.devices.iterator()
+//                    while (itdev.hasNext()) {
+//                        val device = itdev.next().name
+//                        val value = String.format("%s (%s)", device, driver.name)
+//                        devices.add(value)
+//                    }
+//                }
+//            } catch (e: IOException) {
+//                e.printStackTrace()
+//            }
+//            return devices.toTypedArray()
+//        }
 
     // Parse each driver
     val allDevicesPath: Array<String>
