@@ -8,8 +8,8 @@ import java.util.*
  */
 class ComBean(sPort: String, buffer: ByteArray, size: Int) {
     var bRec: ByteArray? = null
-    var sRecTime = ""
-    var sComPort = ""
+    private var sRecTime = ""
+    private var sComPort = ""
     var nSize = 0
 
     init {
@@ -19,7 +19,7 @@ class ComBean(sPort: String, buffer: ByteArray, size: Int) {
             bRec!![i] = buffer[i]
         }
         nSize = size
-        val sDateFormat = SimpleDateFormat("hh:mm:ss")
+        val sDateFormat = SimpleDateFormat.getTimeInstance()
         sRecTime = sDateFormat.format(Date())
     }
 }
