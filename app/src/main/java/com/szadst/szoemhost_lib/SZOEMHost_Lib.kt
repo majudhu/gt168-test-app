@@ -18,17 +18,17 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
     var m_TemplateData = ByteArray(GD_MAX_RECORD_SIZE)
     var m_TemplateData2 = ByteArray(GD_MAX_RECORD_SIZE)
     var m_nTemplateSize = 0
-    var m_nTemplateSize2 = 0
-    var m_nParam = 0
+    //    var m_nTemplateSize2 = 0
+//    var m_nParam = 0
     var m_nImgWidth = 0
     var m_nImgHeight = 0
-    var m_nPassedTime: Long = 0
+    //    var m_nPassedTime: Long = 0
     var m_binImage: ByteArray?
     var m_bmpImage: ByteArray?
     var m_nImageBufOffset = 0
     var m_strPost: String? = null
-    var m_bCancel = false
-    var m_bConCapture = false
+    //    var m_bCancel = false
+//    var m_bConCapture = false
     var m_txtStatus: TextView
     var m_FpImageViewer: ImageView
     var m_runEnableCtrl: Runnable
@@ -37,13 +37,13 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
         override fun onUsbConnected() {
             if (m_devComm!!.runTestConnection() == ERR_SUCCESS) {
                 if (m_devComm!!.runGetDeviceInfo() == ERR_SUCCESS) {
-                    //        			EnableCtrl(true);
-//		            m_btnOpenDevice.setEnabled(false);
-//		            m_btnCloseDevice.setEnabled(true);
-//		            m_txtStatus.setText("Open Device Success!");
+//                    runEnableCtrl(true);
+//                    m_btnOpenDevice.setEnabled(false);
+//                    m_btnCloseDevice.setEnabled(true);
+                    m_txtStatus.text = "Open Device Success!";
                 }
             } else {
-                //        		m_txtStatus.setText("Can not connect to device!");
+                m_txtStatus.text = "Can not connect to device!";
             }
         }
 
@@ -405,7 +405,7 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
         val w_nMode = 0
         val w_nIndex = 0
         val w_nValue = 0
-        m_bParamGet = if (w_nMode == 0) true else false
+        m_bParamGet = w_nMode == 0
         m_devComm!!.initPacket(CMD_SET_PARAMETER_CODE.toShort(), true)
         m_devComm!!.setDataLen(0x0006.toShort())
         m_devComm!!.mAbyPacket[6] = (w_nMode and 0xFF).toByte()
@@ -688,7 +688,7 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
 //                    }
 //                }
 //            } else {
-            if(m_binImage != null) w_blRet = m_devComm!!.usbReceiveImage(m_binImage!!, m_nImgWidth * m_nImgHeight)
+            if (m_binImage != null) w_blRet = m_devComm!!.usbReceiveImage(m_binImage!!, m_nImgWidth * m_nImgHeight)
 //            }
             m_bSendResult = w_blRet
             m_txtStatus.post(procRspPacket)
@@ -865,11 +865,11 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
 //            m_strPost = "100%..."
 //            m_txtStatus.post(runShowStatus)
 //        } else {
-            w_blRet = m_devComm!!.usbDownImage(m_binImage, m_nImgWidth * m_nImgHeight)
-            if (!w_blRet) {
-                CloseDevice()
-                return 1
-            }
+        w_blRet = m_devComm!!.usbDownImage(m_binImage, m_nImgWidth * m_nImgHeight)
+        if (!w_blRet) {
+            CloseDevice()
+            return 1
+        }
 //        }
         // Identify
         m_devComm!!.initPacket(CMD_VERIFY_WITH_IMAGE_CODE.toShort(), false)
@@ -1228,7 +1228,7 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
     fun ReadTemplateFile(p_nUserID: Int): Boolean { // Load Template from (mnt/sdcard/sz_template)
         val w_nLen: Int
         var i: Int
-        var w_nChkSum: Int = 0
+        var w_nChkSum = 0
         var w_nCalcChkSum: Short = 0
         // Open Template File
         val w_szSaveDirPath = Environment.getExternalStorageDirectory().absolutePath + "/sz_template"
@@ -1385,7 +1385,7 @@ class SZOEMHost_Lib(parentActivity: Activity, p_pStatusView: TextView, p_FpImage
 //    l_exit:
 //
 //    	delete[] w_pBuf;
-        return if (m_nImgWidth > 0 && m_nImgHeight > 0) true else false
+        return m_nImgWidth > 0 && m_nImgHeight > 0
     }
 
     fun WriteImage(pImage: ByteArray?): Boolean {

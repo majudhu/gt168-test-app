@@ -7,7 +7,7 @@ import android.view.WindowManager
 import android.widget.*
 import android.widget.AdapterView.OnItemSelectedListener
 import androidx.appcompat.app.AppCompatActivity
-import com.szadst.szoemhost_lib.DevComm
+//import com.szadst.szoemhost_lib.DevComm
 import com.szadst.szoemhost_lib.GD_MAX_RECORD_COUNT
 import com.szadst.szoemhost_lib.SZOEMHost_Lib
 
