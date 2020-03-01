@@ -1,15 +1,23 @@
 package test.srtngcmpny.finger.basic
 
+import android.app.PendingIntent
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.hardware.usb.UsbConstants
+import android.hardware.usb.UsbDevice
+import android.hardware.usb.UsbEndpoint
+import android.hardware.usb.UsbManager
 import android.os.Bundle
+import android.os.Parcelable
 import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
 import android.widget.*
 import android.widget.AdapterView.OnItemSelectedListener
 import androidx.appcompat.app.AppCompatActivity
-//import com.szadst.szoemhost_lib.DevComm
-import com.szadst.szoemhost_lib.GD_MAX_RECORD_COUNT
-import com.szadst.szoemhost_lib.SZOEMHost_Lib
+import com.szadst.szoemhost_lib.*
 
 class MainActivity : AppCompatActivity(), View.OnClickListener {
     var m_nUserID = 0
@@ -66,8 +74,74 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
+    fun btnTestOnClick(view: View) {
+        Toast.makeText(applicationContext, "testing", Toast.LENGTH_SHORT).show()
+        val usbManager = applicationContext.getSystemService(Context.USB_SERVICE) as UsbManager
+
+        val pi = PendingIntent.getBroadcast(applicationContext, 0, Intent("ch.serverbox.android.USB"), 0)
+        val mPermissionReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                applicationContext.unregisterReceiver(this)
+                if (intent.action == UsbController.ACTION_USB_PERMISSION) {
+                    if (intent.getBooleanExtra(
+                                    UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
+                        Toast.makeText(applicationContext, "USB Permission Granted", Toast.LENGTH_SHORT).show()
+                        val usbDevice = intent
+                                .getParcelableExtra<Parcelable>(UsbManager.EXTRA_DEVICE) as UsbDevice
+                        if (usbDevice.vendorId == VID
+                                && usbDevice.productId == PID) {
+                            val usbDeviceConnection = usbManager.openDevice(usbDevice)
+                            if (usbDevice.interfaceCount > 0 && usbDeviceConnection.claimInterface(usbDevice.getInterface(0), true)) {
+                                val usbInterface = usbDevice.getInterface(0)
+                                if (usbInterface.endpointCount >= 2) {
+                                    val endPoints = mutableListOf<UsbEndpoint>()
+                                    for (i in 0 until usbInterface.endpointCount) {
+                                        endPoints.add(usbInterface.getEndpoint(i))
+                                        if (usbInterface.getEndpoint(i)?.type == UsbConstants.USB_ENDPOINT_XFER_BULK
+                                                && usbInterface.getEndpoint(0).direction == UsbConstants.USB_DIR_IN) {
+                                            val inEndPoint = usbInterface.getEndpoint(i)
+                                            val outEndPoint = usbInterface.getEndpoint(i)
+                                            val maxPacketSizeIn = inEndPoint.maxPacketSize
+                                            val maxPacketSizeOut = outEndPoint.maxPacketSize
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            Toast.makeText(applicationContext, "USB Permission Denied", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            }
+
+        }
+
+        applicationContext.registerReceiver(mPermissionReceiver, IntentFilter("ch.serverbox.android.USB"))
+        usbManager.requestPermission(d, pi)
+    }
+
     override fun onClick(view: View) {
-        if (view === m_btnOpenDevice) OnOpenDeviceBtn() else if (view === m_btnCloseDevice) OnCloseDeviceBtn() else if (view === m_btnEnroll) OnEnrollBtn() else if (view === m_btnVerify) OnVerifyBtn() else if (view === m_btnIdentify) OnIdentifyBtn() else if (view === m_btnIdentifyFree) OnIdentifyFreeBtn() else if (view === m_btnCaptureImage) OnUpImage() else if (view === m_btnCancel) OnCancelBtn() else if (view === m_btnGetUserCount) OnGetUserCount() else if (view === m_btnGetEmptyID) OnGetEmptyID() else if (view === m_btnDeleteID) OnDeleteIDBtn() else if (view === m_btnDeleteAll) OnDeleteAllBtn() else if (view === m_btnReadTemplate) OnReadTemplateBtn() else if (view === m_btnWriteTemplate) OnWriteTemplateBtn() else if (view === m_btnGetFWVer) OnGetFwVersion() else if (view === m_btnSetDevPass) OnSetDevPass() else if (view === m_btnVerifyPass) OnVerifyPassBtn() else if (view === m_btnVerifyImage) OnVerifyWithImage() else if (view === m_btnIdentifyImage) OnIdentifyWithImage()
+        when (view) {
+            m_btnOpenDevice -> OnOpenDeviceBtn()
+            m_btnCloseDevice -> OnCloseDeviceBtn()
+            m_btnEnroll -> OnEnrollBtn()
+            m_btnVerify -> OnVerifyBtn()
+            m_btnIdentify -> OnIdentifyBtn()
+            m_btnIdentifyFree -> OnIdentifyFreeBtn()
+            m_btnCaptureImage -> OnUpImage()
+            m_btnCancel -> OnCancelBtn()
+            m_btnGetUserCount -> OnGetUserCount()
+            m_btnGetEmptyID -> OnGetEmptyID()
+            m_btnDeleteID -> OnDeleteIDBtn()
+            m_btnDeleteAll -> OnDeleteAllBtn()
+            m_btnReadTemplate -> OnReadTemplateBtn()
+            m_btnWriteTemplate -> OnWriteTemplateBtn()
+            m_btnGetFWVer -> OnGetFwVersion()
+            m_btnSetDevPass -> OnSetDevPass()
+            m_btnVerifyPass -> OnVerifyPassBtn()
+            m_btnVerifyImage -> OnVerifyWithImage()
+            m_btnIdentifyImage -> OnIdentifyWithImage()
+        }
     }
 
     fun InitWidget() {

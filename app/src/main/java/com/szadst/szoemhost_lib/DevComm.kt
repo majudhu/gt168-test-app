@@ -119,8 +119,8 @@ const val GD_MAX_FP_TIME_OUT = 60
 const val COMM_SLEEP_TIME = 100
 const val ONCE_UP_IMAGE_UINT = 60000
 const val COMM_TIMEOUT = 15000
-private const val VID = 0x2009
-private const val PID = 0x7638
+const val VID = 0x2009
+const val PID = 0x7638
 // UART ch34xuartdriver
 //private const val UART_ACTION_USB_PERMISSION = "cn.wch.wchusbdriver.USB_PERMISSION"
 

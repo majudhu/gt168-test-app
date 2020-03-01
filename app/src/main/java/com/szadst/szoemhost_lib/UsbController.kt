@@ -347,7 +347,7 @@ class UsbController(parentActivity: Activity, private val mConnectionHandler: IU
     //		Log.e(TAG, ">==< " + msg.toString() + " >==<");
 //	}
     companion object {
-        protected const val ACTION_USB_PERMISSION = "ch.serverbox.android.USB"
+        const val ACTION_USB_PERMISSION = "ch.serverbox.android.USB"
         const val TAG = "USBController"
     }
 
