@@ -253,24 +253,24 @@ class DevComm(private val m_parentAcitivity: Activity, usbConnState: IUsbConnSta
 //                UART_ReadThread().start()
 //            }
 //        }
-        else  // ttyUART
-        {
-            mSerialport.port = p_szDevice
-            mSerialport.baudRate = p_nBaudrate
-            try {
-                mSerialport.open()
-            } catch (e: SecurityException) {
-                Toast.makeText(mApplicationContext, "Open ttyUART device failed!", Toast.LENGTH_SHORT).show()
-                return false
-            } catch (e: IOException) {
-                Toast.makeText(mApplicationContext, "Open ttyUART device failed!", Toast.LENGTH_SHORT).show()
-                return false
-            } catch (e: InvalidParameterException) {
-                Toast.makeText(mApplicationContext, "Open ttyUART device failed!", Toast.LENGTH_SHORT).show()
-                return false
-            }
-            mNconnected = 3
-        }
+//        else  // ttyUART
+//        {
+//            mSerialport.port = p_szDevice
+//            mSerialport.baudRate = p_nBaudrate
+//            try {
+//                mSerialport.open()
+//            } catch (e: SecurityException) {
+//                Toast.makeText(mApplicationContext, "Open ttyUART device failed!", Toast.LENGTH_SHORT).show()
+//                return false
+//            } catch (e: IOException) {
+//                Toast.makeText(mApplicationContext, "Open ttyUART device failed!", Toast.LENGTH_SHORT).show()
+//                return false
+//            } catch (e: InvalidParameterException) {
+//                Toast.makeText(mApplicationContext, "Open ttyUART device failed!", Toast.LENGTH_SHORT).show()
+//                return false
+//            }
+//            mNconnected = 3
+//        }
         return true
     }
 
