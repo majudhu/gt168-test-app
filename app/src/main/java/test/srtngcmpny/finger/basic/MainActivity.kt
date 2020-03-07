@@ -24,6 +24,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     var m_strPost: String? = null
     var m_nBaudrate = 0
     var m_szDevice: String? = null
+
     // Controls
     var m_btnOpenDevice: Button? = null
     var m_btnCloseDevice: Button? = null
@@ -74,53 +75,51 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
-//    fun btnTestOnClick(view: View) {
-//        val usbManager = applicationContext.getSystemService(Context.USB_SERVICE) as UsbManager
-//        val device = usbManager.deviceList.values.firstOrNull { it.vendorId == VID && it.productId == PID }
-//        if (device == null) Toast.makeText(applicationContext, "No device found", Toast.LENGTH_SHORT).show()
-//
-//        val mPermissionReceiver = object : BroadcastReceiver() {
-//            override fun onReceive(context: Context, intent: Intent) {
-//                applicationContext.unregisterReceiver(this)
-//                if (intent.action == UsbController.ACTION_USB_PERMISSION) {
-//                    if (intent.getBooleanExtra(
-//                                    UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
-//                        Toast.makeText(applicationContext, "USB Permission Granted", Toast.LENGTH_SHORT).show()
-//                        val usbDevice = intent
-//                                .getParcelableExtra<Parcelable>(UsbManager.EXTRA_DEVICE) as UsbDevice
-//                        if (usbDevice.vendorId == VID
-//                                && usbDevice.productId == PID) {
-//                            val usbDeviceConnection = usbManager.openDevice(usbDevice)
-//                            if (usbDevice.interfaceCount > 0 && usbDeviceConnection.claimInterface(usbDevice.getInterface(0), true)) {
-//                                val usbInterface = usbDevice.getInterface(0)
-//                                if (usbInterface.endpointCount >= 2) {
-//                                    val endPoints = (0..usbInterface.endpointCount)
-//                                            .map { usbInterface.getEndpoint(it) }
-//                                            .filter { it.type == UsbConstants.USB_ENDPOINT_XFER_BULK }
-//                                    val inEndPoint = endPoints.firstOrNull { it.direction == UsbConstants.USB_DIR_IN }
-//                                    val outEndpoint = endPoints.firstOrNull { it.direction == UsbConstants.USB_DIR_OUT }
-//                                    val maxInSize = inEndPoint?.maxPacketSize
-//                                    val maxOutSize = inEndPoint?.maxPacketSize
-//                                    // m_devComm!!.runTestConnection()
-//                                    // m_devComm!!.runGetDeviceInfo()
-//                                }
-//                            }
-//                        } else {
-//                            Toast.makeText(applicationContext, "USB Permission Denied", Toast.LENGTH_SHORT).show()
-//                        }
-//                    }
-//                }
-//            }
-//
-//        }
-//
-//        if (!usbManager.hasPermission(device)) {
-//            val pi = PendingIntent.getBroadcast(applicationContext, 0, Intent("ch.serverbox.android.USB"), 0)
-//            applicationContext.registerReceiver(mPermissionReceiver, IntentFilter("ch.serverbox.android.USB"))
-//            usbManager.requestPermission(device, pi)
-//        }
-//
-//    }
+    fun btnTestOnClick(view: View) {
+        val usbManager = applicationContext.getSystemService(Context.USB_SERVICE) as UsbManager
+        val device = usbManager.deviceList.values.firstOrNull { it.vendorId == VID && it.productId == PID }
+        if (device == null)
+            Toast.makeText(applicationContext, "No device found", Toast.LENGTH_SHORT).show()
+        else {
+            if (!usbManager.hasPermission(device)) {
+                val mPermissionReceiver = object : BroadcastReceiver() {
+                    override fun onReceive(context: Context, intent: Intent) {
+                        applicationContext.unregisterReceiver(this)
+                        if (intent.action == UsbController.ACTION_USB_PERMISSION) {
+                            if (intent.getBooleanExtra(
+                                            UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
+                                Toast.makeText(applicationContext, "USB Permission Granted", Toast.LENGTH_SHORT).show()
+                            } else {
+                                Toast.makeText(applicationContext, "USB Permission Denied", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                }
+                val pi = PendingIntent.getBroadcast(applicationContext, 0, Intent("ch.serverbox.android.USB"), 0)
+                applicationContext.registerReceiver(mPermissionReceiver, IntentFilter("ch.serverbox.android.USB"))
+                usbManager.requestPermission(device, pi)
+            } else {
+                val usbDeviceConnection = usbManager.openDevice(device)
+                if (device.interfaceCount > 0 && usbDeviceConnection.claimInterface(device.getInterface(0), true)) {
+                    val usbInterface = device.getInterface(0)
+                    if (usbInterface.endpointCount >= 2) {
+                        val endPoints = (0 until usbInterface.endpointCount)
+                                .map { usbInterface.getEndpoint(it) }
+                                .filter { it.type == UsbConstants.USB_ENDPOINT_XFER_BULK }
+                        val inEndPoint = endPoints.firstOrNull { it.direction == UsbConstants.USB_DIR_IN }
+                        val outEndpoint = endPoints.firstOrNull { it.direction == UsbConstants.USB_DIR_OUT }
+                        val maxInSize = inEndPoint?.maxPacketSize
+                        val maxOutSize = outEndpoint?.maxPacketSize
+                        // m_devComm!!.runTestConnection()
+                        // m_devComm!!.runGetDeviceInfo()
+
+                    }
+                }
+            }
+
+        }
+
+    }
 
     override fun onClick(view: View) {
         when (view) {
