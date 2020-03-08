@@ -6,11 +6,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.hardware.usb.UsbConstants
-import android.hardware.usb.UsbDevice
-import android.hardware.usb.UsbEndpoint
 import android.hardware.usb.UsbManager
 import android.os.Bundle
-import android.os.Parcelable
 import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
@@ -106,13 +103,22 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                         val endPoints = (0 until usbInterface.endpointCount)
                                 .map { usbInterface.getEndpoint(it) }
                                 .filter { it.type == UsbConstants.USB_ENDPOINT_XFER_BULK }
-                        val inEndPoint = endPoints.firstOrNull { it.direction == UsbConstants.USB_DIR_IN }
-                        val outEndpoint = endPoints.firstOrNull { it.direction == UsbConstants.USB_DIR_OUT }
-                        val maxInSize = inEndPoint?.maxPacketSize
-                        val maxOutSize = outEndpoint?.maxPacketSize
-                        // m_devComm!!.runTestConnection()
-                        // m_devComm!!.runGetDeviceInfo()
-
+                        val inEndPoint = endPoints.firstOrNull { it.direction == UsbConstants.USB_DIR_IN }!!
+                        val outEndpoint = endPoints.firstOrNull { it.direction == UsbConstants.USB_DIR_OUT }!!
+                        val maxInSize = inEndPoint.maxPacketSize
+                        val maxOutSize = outEndpoint.maxPacketSize
+                        val commandPacket = ByteArray(64 * 1024)
+                        commandPacket[0] = (CMD_PREFIX_CODE and 0xFF).toByte()
+                        commandPacket[1] = (CMD_PREFIX_CODE and 0xFF00 shr 8 and 0xFF).toByte()
+                        commandPacket[2] = (CMD_TEST_CONNECTION_CODE and 0xFF).toByte()
+                        commandPacket[3] = (CMD_TEST_CONNECTION_CODE and 0xFF00 shr 8 and 0xFF).toByte()
+                        val checksum = commandPacket.sumBy { it.toInt() and 0xFF }
+                        commandPacket[CMD_PACKET_LEN] = (checksum and 0xFF).toByte()
+                        commandPacket[CMD_PACKET_LEN + 1] = (checksum and 0xFF00 shr 8 and 0xFF).toByte()
+                        usbDeviceConnection.bulkTransfer(outEndpoint, commandPacket, 31, SCSI_TIMEOUT)
+                        val recieveBuffer = ByteArray(64 * 1000)
+                        usbDeviceConnection.bulkTransfer(inEndPoint, recieveBuffer, maxInSize, SCSI_TIMEOUT)
+                        print(recieveBuffer.take(32))
                     }
                 }
             }
