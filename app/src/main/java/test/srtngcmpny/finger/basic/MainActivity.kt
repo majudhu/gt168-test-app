@@ -8,6 +8,7 @@ import android.content.IntentFilter
 import android.hardware.usb.UsbConstants
 import android.hardware.usb.UsbManager
 import android.os.Bundle
+import android.os.SystemClock
 import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
@@ -15,6 +16,7 @@ import android.widget.*
 import android.widget.AdapterView.OnItemSelectedListener
 import androidx.appcompat.app.AppCompatActivity
 import com.szadst.szoemhost_lib.*
+import kotlin.coroutines.*
 
 class MainActivity : AppCompatActivity(), View.OnClickListener {
     var m_nUserID = 0
@@ -107,18 +109,27 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                         val outEndpoint = endPoints.firstOrNull { it.direction == UsbConstants.USB_DIR_OUT }!!
                         val maxInSize = inEndPoint.maxPacketSize
                         val maxOutSize = outEndpoint.maxPacketSize
-                        val commandPacket = ByteArray(64 * 1024)
+                        val commandPacket = ByteArray(64)
                         commandPacket[0] = (CMD_PREFIX_CODE and 0xFF).toByte()
                         commandPacket[1] = (CMD_PREFIX_CODE and 0xFF00 shr 8 and 0xFF).toByte()
-                        commandPacket[2] = (CMD_TEST_CONNECTION_CODE and 0xFF).toByte()
-                        commandPacket[3] = (CMD_TEST_CONNECTION_CODE and 0xFF00 shr 8 and 0xFF).toByte()
+                        commandPacket[2] = (CMD_GET_ENROLL_COUNT_CODE and 0xFF).toByte()
+                        commandPacket[3] = (CMD_GET_ENROLL_COUNT_CODE and 0xFF00 shr 8 and 0xFF).toByte()
                         val checksum = commandPacket.sumBy { it.toInt() and 0xFF }
                         commandPacket[CMD_PACKET_LEN] = (checksum and 0xFF).toByte()
                         commandPacket[CMD_PACKET_LEN + 1] = (checksum and 0xFF00 shr 8 and 0xFF).toByte()
-                        usbDeviceConnection.bulkTransfer(outEndpoint, commandPacket, 31, SCSI_TIMEOUT)
-                        val recieveBuffer = ByteArray(64 * 1000)
-                        usbDeviceConnection.bulkTransfer(inEndPoint, recieveBuffer, maxInSize, SCSI_TIMEOUT)
-                        print(recieveBuffer.take(32))
+                        Thread(Runnable {
+                            val c = usbDeviceConnection.claimInterface(usbInterface, true)
+                            val r = usbDeviceConnection.bulkTransfer(outEndpoint, commandPacket, 24, SCSI_TIMEOUT)
+                            Thread.sleep(100)
+                            var receiveBuffer = ByteArray(512)
+                            for (i in 0..100) {
+                                val x = usbDeviceConnection.bulkTransfer(inEndPoint, receiveBuffer, 24, SCSI_TIMEOUT)
+                                if (x != 0) break
+                                Thread.sleep(100)
+                            }
+                            usbDeviceConnection.releaseInterface(usbInterface)
+                        }).start()
+
                     }
                 }
             }
