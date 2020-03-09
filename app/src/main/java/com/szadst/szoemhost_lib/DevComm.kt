@@ -8,14 +8,12 @@ import android.os.SystemClock
 import android.widget.ArrayAdapter
 import android.widget.Spinner
 import android.widget.Toast
-import android_serialport_api.ComBean
-import android_serialport_api.SerialHelper
-import android_serialport_api.SerialPortFinder
+//import android_serialport_api.ComBean
+//import android_serialport_api.SerialHelper
+//import android_serialport_api.SerialPortFinder
 //import cn.wch.ch34xuartdriver.CH34xUARTDriver
 //import com.szadst.szoemhost_lib.DevComm.DispQueueThread
 //import com.szadst.szoemhost_lib.DevComm.SerialControl
-import java.io.IOException
-import java.security.InvalidParameterException
 import java.util.*
 
 // Packet Prefix
@@ -145,11 +143,11 @@ class DevComm(private val m_parentAcitivity: Activity, usbConnState: IUsbConnSta
     var mNuartreadlen: Int
     var mBbufferhandle = false
     // Serial Port
-    private var mSerialPortFinder //�����豸����
-            : SerialPortFinder
-    var dispQueue //ˢ����ʾ�߳�
-            : DispQueueThread
-    private var mSerialport: SerialControl
+//    private var mSerialPortFinder //�����豸����
+//            : SerialPortFinder
+//    var dispQueue //ˢ����ʾ�߳�
+//            : DispQueueThread
+//    private var mSerialport: SerialControl
     // Connection
     var mNconnected // 0 : Not Connected, 1 : UART, 2 : USB, 3 : ttyUART
             : Byte
@@ -184,18 +182,18 @@ class DevComm(private val m_parentAcitivity: Activity, usbConnState: IUsbConnSta
         mPwritebuffer = ByteArray(MAX_DATA_LEN)
         mPreadbuffer = ByteArray(MAX_DATA_LEN)
         mPuartreadbuf = ByteArray(MAX_DATA_LEN)
-        dispQueue = DispQueueThread()
-        dispQueue.start()
-        mSerialport = SerialControl()
-        mSerialPortFinder = SerialPortFinder()
-        val entryValues = mSerialPortFinder.allDevicesPath
+//        dispQueue = DispQueueThread()
+//        dispQueue.start()
+//        mSerialport = SerialControl()
+//        mSerialPortFinder = SerialPortFinder()
+//        val entryValues = mSerialPortFinder.allDevicesPath
         val allDevices: MutableList<String?> = ArrayList()
         allDevices.add("USB")
 //        allDevices.add("CH34xUART")
-        for (i in entryValues.indices) {
-            allDevices.add(entryValues[i])
-            //			LibDebugManage.WriteLog2(entryValues[i]);
-        }
+//        for (i in entryValues.indices) {
+//            allDevices.add(entryValues[i])
+//            //			LibDebugManage.WriteLog2(entryValues[i]);
+//        }
         val aspnDevices = ArrayAdapter(m_parentAcitivity, R.layout.simple_spinner_item, allDevices)
         p_spDevice.adapter = aspnDevices
     }
@@ -205,13 +203,13 @@ class DevComm(private val m_parentAcitivity: Activity, usbConnState: IUsbConnSta
     fun devCommInit(p_spDevice: Spinner): Int {
         mNconnected = 0
         mNuartreadlen = 0
-        val entryValues = mSerialPortFinder.allDevicesPath
+//        val entryValues = mSerialPortFinder.allDevicesPath
         val allDevices: MutableList<String?> = ArrayList()
         allDevices.add("USB")
 //        allDevices.add("CH34xUART")
-        for (i in entryValues.indices) {
-            allDevices.add(entryValues[i])
-        }
+//        for (i in entryValues.indices) {
+//            allDevices.add(entryValues[i])
+//        }
         val aspnDevices = ArrayAdapter(m_parentAcitivity, R.layout.simple_spinner_item, allDevices)
         p_spDevice.adapter = aspnDevices
         return 0
@@ -291,8 +289,8 @@ class DevComm(private val m_parentAcitivity: Activity, usbConnState: IUsbConnSta
             }
             else  // ttyUART
             -> {
-                mSerialport.stopSend()
-                mSerialport.close()
+//                mSerialport.stopSend()
+//                mSerialport.close()
                 mNconnected = 0
             }
         }
@@ -899,57 +897,57 @@ class DevComm(private val m_parentAcitivity: Activity, usbConnState: IUsbConnSta
 //    }
 
     //----------------------------------------------------���ڿ�����
-    inner class SerialControl : SerialHelper() {
-        //		public SerialControl(String sPort, String sBaudRate){
-
-        //			super(sPort, sBaudRate);
-//		} : SerialHelper() {
-        override fun onDataReceived(ComRecData: ComBean) { //���ݽ�����������ʱ��������̣�����Ῠ��,���ܺ�6410����ʾ�����й�
-//ֱ��ˢ����ʾ��������������ʱ���������ԣ�����������ʾͬ����
-//���̶߳�ʱˢ����ʾ���Ի�ý���������ʾЧ�������ǽ��������ٶȿ�����ʾ�ٶ�ʱ����ʾ���ͺ�
-//����Ч�����-_-���̶߳�ʱˢ���Ժ�һЩ��
-            dispQueue.addQueue(ComRecData) //�̶߳�ʱˢ����ʾ(�Ƽ�)
-            /*
-                runOnUiThread(new Runnable()//ֱ��ˢ����ʾ
-                {
-                    public void run()
-                    {
-                        DispRecData(ComRecData);
-                    }
-                });*/
-        }
-    }
+//    inner class SerialControl : SerialHelper() {
+//        //		public SerialControl(String sPort, String sBaudRate){
+//
+//        //			super(sPort, sBaudRate);
+////		} : SerialHelper() {
+//        override fun onDataReceived(ComRecData: ComBean) { //���ݽ�����������ʱ��������̣�����Ῠ��,���ܺ�6410����ʾ�����й�
+////ֱ��ˢ����ʾ��������������ʱ���������ԣ�����������ʾͬ����
+////���̶߳�ʱˢ����ʾ���Ի�ý���������ʾЧ�������ǽ��������ٶȿ�����ʾ�ٶ�ʱ����ʾ���ͺ�
+////����Ч�����-_-���̶߳�ʱˢ���Ժ�һЩ��
+//            dispQueue.addQueue(ComRecData) //�̶߳�ʱˢ����ʾ(�Ƽ�)
+//            /*
+//                runOnUiThread(new Runnable()//ֱ��ˢ����ʾ
+//                {
+//                    public void run()
+//                    {
+//                        DispRecData(ComRecData);
+//                    }
+//                });*/
+//        }
+//    }
 
     //----------------------------------------------------ˢ����ʾ�߳�
-    inner class DispQueueThread : Thread() {
-        private val queueList: Queue<ComBean> = LinkedList()
-        override fun run() {
-            super.run()
-            while (!isInterrupted) {
-                var i: Int
-                while (true) {
-                    var comData: ComBean?
-                    if (queueList.poll().also { comData = it } == null) break
-                    i = 0
-                    while (mBbufferhandle) {
-                        i++
-                        if (i > 10000) break
-                    }
-                    mBbufferhandle = true
-                    System.arraycopy(comData!!.bRec!!, 0, mPuartreadbuf, mNuartreadlen, comData!!.nSize)
-                    mNuartreadlen += comData!!.nSize
-                    mBbufferhandle = false
-                    //		        	break;
-                }
-            }
-        }
-
-        @Synchronized
-        fun addQueue(ComData: ComBean) {
-            queueList.add(ComData)
-        }
-
-    }
+//    inner class DispQueueThread : Thread() {
+//        private val queueList: Queue<ComBean> = LinkedList()
+//        override fun run() {
+//            super.run()
+//            while (!isInterrupted) {
+//                var i: Int
+//                while (true) {
+//                    var comData: ComBean?
+//                    if (queueList.poll().also { comData = it } == null) break
+//                    i = 0
+//                    while (mBbufferhandle) {
+//                        i++
+//                        if (i > 10000) break
+//                    }
+//                    mBbufferhandle = true
+//                    System.arraycopy(comData!!.bRec!!, 0, mPuartreadbuf, mNuartreadlen, comData!!.nSize)
+//                    mNuartreadlen += comData!!.nSize
+//                    mBbufferhandle = false
+//                    //		        	break;
+//                }
+//            }
+//        }
+//
+//        @Synchronized
+//        fun addQueue(ComData: ComBean) {
+//            queueList.add(ComData)
+//        }
+//
+//    }
 
     companion object {
         /***************************************************************************
