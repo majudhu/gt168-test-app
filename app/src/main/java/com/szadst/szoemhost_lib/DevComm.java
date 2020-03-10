@@ -16,7 +16,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-import cn.wch.ch34xuartdriver.CH34xUARTDriver;
 import android_serialport_api.ComBean;
 import android_serialport_api.SerialHelper;
 import android_serialport_api.SerialPortFinder;
@@ -152,7 +151,6 @@ public class DevComm {
     
     // UART ch34xuartdriver
 	private static final String UART_ACTION_USB_PERMISSION = "cn.wch.wchusbdriver.USB_PERMISSION";
-	public static CH34xUARTDriver m_uartDriver;
 	public byte[] m_pWriteBuffer;
 	public byte[] m_pReadBuffer;
 	public byte[] m_pUARTReadBuf;
@@ -180,9 +178,7 @@ public class DevComm {
         m_usbBase = new UsbController(parentActivity, usbConnState, VID, PID);
         
         // UART Driver Init
-    	m_uartDriver = new CH34xUARTDriver(
- 				(UsbManager) mApplicationContext.getSystemService(Context.USB_SERVICE), m_parentAcitivity,
- 				UART_ACTION_USB_PERMISSION);
+
  		
  		// USB Support Check
 // 		if (!m_uartDriver.UsbFeatureSupported())
@@ -267,36 +263,6 @@ public class DevComm {
                 return false;
     		m_nConnected = 2;
     	}
-    	else if (p_szDevice == "CH34xUART") // UART
-    	{
-    		if (!m_uartDriver.ResumeUsbList())// ResumeUsbList��������ö��CH34X�豸�Լ�������豸
-			{
-				Toast.makeText(mApplicationContext, "Open UART device failed!", Toast.LENGTH_SHORT).show();
-				m_uartDriver.CloseDevice();
-				return false;
-			}
-    		else
-    		{
-				if (!m_uartDriver.UartInit())
-				{
-					Toast.makeText(mApplicationContext, "Initialize UART device failed!", Toast.LENGTH_SHORT).show();
-					Toast.makeText(mApplicationContext, "Open UART device failed!", Toast.LENGTH_SHORT).show();
-					return false;
-				}
-				
-				if (!m_uartDriver.SetConfig(p_nBaudrate, (byte)8, (byte)1, (byte)0, (byte)0))
-				{
-					Toast.makeText(mApplicationContext, "Configuration UART device failed!", Toast.LENGTH_SHORT).show();
-					Toast.makeText(mApplicationContext, "Open UART device failed!", Toast.LENGTH_SHORT).show();
-					return false;
-				}
-				
-				Toast.makeText(mApplicationContext, "Open UART device success!", Toast.LENGTH_SHORT).show();
-				m_nConnected = 1;
-				m_nUARTReadLen = 0;
-				new UART_ReadThread().start();
-			}
-    	}
     	else	// ttyUART
     	{
     		m_SerialPort.setPort(p_szDevice);
@@ -324,11 +290,6 @@ public class DevComm {
     	if (m_nConnected == 0)
     	{
     		return false;
-    	}
-    	else if (m_nConnected == 1)	// UART
-    	{
-    		m_uartDriver.CloseDevice();
-    		m_nConnected = 0;
     	}
     	else if (m_nConnected == 2)	// USB
     	{
@@ -1013,10 +974,6 @@ public class DevComm {
 
     	if (m_nConnected == 1)
     	{
-    		w_nResult = m_uartDriver.WriteData(m_abyPacket, CMD_PACKET_LEN + 2);
-    		if(w_nResult < 0){
-        		return false;
-        	}
     	}
     	else if (m_nConnected == 3)
     	{
@@ -1035,10 +992,7 @@ public class DevComm {
 
     	if (m_nConnected == 1)
     	{
-    		w_nResult = m_uartDriver.WriteData(m_abyPacket2, CMD_PACKET_LEN + 2);
-    		if(w_nResult < 0){
-        		return false;
-        	}
+
     	}
     	else if (m_nConnected == 3)
     	{
@@ -1167,9 +1121,7 @@ public class DevComm {
 
     	if (m_nConnected == 1)
     	{
-	    	w_nSendCnt = m_uartDriver.WriteData(m_abyPacket, GetDataLen() + 8);
-	    	if(w_nSendCnt < 0)
-	    		return false;
+
     	}
     	else if (m_nConnected == 3)
     	{
@@ -1264,7 +1216,6 @@ public class DevComm {
 				if (m_nUARTReadLen > 0)
 					continue;
 
-				m_nUARTReadLen = m_uartDriver.ReadData(m_pUARTReadBuf, DevComm.MAX_DATA_LEN);
 			}
 			
 		}

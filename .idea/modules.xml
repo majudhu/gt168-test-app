@@ -3,6 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/gt168.iml" filepath="$PROJECT_DIR$/gt168.iml" group="gt168" />
+      <module fileurl="file://$PROJECT_DIR$/app/gt168-app.iml" filepath="$PROJECT_DIR$/app/gt168-app.iml" group="gt168/app" />
       <module fileurl="file://$PROJECT_DIR$/source code.iml" filepath="$PROJECT_DIR$/source code.iml" group="source code" />
       <module fileurl="file://$PROJECT_DIR$/app/source code-app.iml" filepath="$PROJECT_DIR$/app/source code-app.iml" group="source code/app" />
     </modules>
