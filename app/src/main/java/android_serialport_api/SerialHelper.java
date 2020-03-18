@@ -6,11 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.InvalidParameterException;
 
-import com.szadst.szoemhost_lib.DevComm;
-import com.szadst.szoemhost_lib.LibDebugManage;
-
-import android_serialport_api.ComBean;
-import android_serialport_api.SerialPort;
+import test.srtngcmpny.finger.basic.DevComm;
 
 
 public abstract class SerialHelper{

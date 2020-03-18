@@ -1,4 +1,4 @@
-package com.szadst.szoemhost_lib;
+package test.srtngcmpny.finger.basic;
 
 public interface IUsbConnState {
     void onUsbConnected();

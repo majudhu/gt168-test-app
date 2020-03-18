@@ -1,15 +1,14 @@
 package test.srtngcmpny.finger.basic
 
 import android.os.Bundle
+import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import com.szadst.szoemhost_lib.DevComm
-import com.szadst.szoemhost_lib.SZOEMHost_Lib
 
-class MainActivity : AppCompatActivity(), View.OnClickListener {
+class MainActivity : AppCompatActivity(), View.OnClickListener, FpDataReceived {
     var m_nUserID = 0
     var m_nBaudrate = 9600
     var m_szDevice: String = "USB"
@@ -74,10 +73,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         m_btnDeleteID!!.setOnClickListener(this)
         m_btnDeleteAll!!.setOnClickListener(this)
         if (m_szHost == null) {
-            m_szHost = SZOEMHost_Lib(this, m_txtStatus, runEnableCtrl)
-        } else {
-            m_szHost!!.SZOEMHost_Lib_Init(this, m_txtStatus, runEnableCtrl)
+            m_szHost = FpLib(this, m_txtStatus, runEnableCtrl)
         }
+//        else {
+//            m_szHost!!.SZOEMHost_Lib_Init(this, m_txtStatus, runEnableCtrl)
+//        }
     }
 
     private fun enableCtrl(bEnable: Boolean) {
@@ -195,6 +195,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     companion object {
-        private var m_szHost: SZOEMHost_Lib? = null
+        private var m_szHost: FpLib? = null
+    }
+
+    override fun onReceived(data: String?) {
+        // Do anything you want here \(^_^)/
+        Log.e("data", data!!)
     }
 }

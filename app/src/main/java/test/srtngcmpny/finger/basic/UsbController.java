@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with UsbController. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.szadst.szoemhost_lib;
+package test.srtngcmpny.finger.basic;
 
 import java.util.Arrays;
 import java.util.HashMap;

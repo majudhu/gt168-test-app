@@ -24,8 +24,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import com.szadst.szoemhost_lib.LibDebugManage;
-
 import android.util.Log;
 
 public class SerialPort {

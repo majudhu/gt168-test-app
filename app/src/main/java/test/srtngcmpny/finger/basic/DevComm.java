@@ -1,19 +1,14 @@
-package com.szadst.szoemhost_lib;
+package test.srtngcmpny.finger.basic;
 
 import android.app.Activity;
 import android.content.Context;
 import android.os.SystemClock;
-import android.widget.ArrayAdapter;
-import android.widget.Spinner;
 import android.widget.Toast;
 
 import java.io.IOException;
 import java.security.InvalidParameterException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 
 import android_serialport_api.ComBean;
