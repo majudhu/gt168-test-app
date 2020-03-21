@@ -10,18 +10,8 @@ import android.widget.Toast;
 
 import java.io.IOException;
 import java.security.InvalidParameterException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
-import cn.wch.ch34xuartdriver.CH34xUARTDriver;
-import android_serialport_api.ComBean;
-import android_serialport_api.SerialHelper;
-import android_serialport_api.SerialPortFinder;
-
-import com.szadst.szoemhost_lib.LibDebugManage;
 
 public class DevComm {
 
@@ -152,22 +142,15 @@ public class DevComm {
     
     // UART ch34xuartdriver
 	private static final String UART_ACTION_USB_PERMISSION = "cn.wch.wchusbdriver.USB_PERMISSION";
-	public static CH34xUARTDriver m_uartDriver;
 	public byte[] m_pWriteBuffer;
 	public byte[] m_pReadBuffer;
 	public byte[] m_pUARTReadBuf;
 	public int m_nUARTReadLen;
 	public boolean m_bBufferHandle = false;
-	
-	// Serial Port
-	SerialPortFinder mSerialPortFinder;//�����豸����
-	DispQueueThread DispQueue;//ˢ����ʾ�߳�
-	SerialControl m_SerialPort;
+
 	
 	// Connection
 	public byte m_nConnected;	// 0 : Not Connected, 1 : UART, 2 : USB, 3 : ttyUART
-	
-	public LibDebugManage	m_dbgInfo; 
 
     public DevComm(Activity parentActivity, IUsbConnState usbConnState, Spinner p_spDevice){
     	
@@ -178,11 +161,7 @@ public class DevComm {
         
         // USB Init
         m_usbBase = new UsbController(parentActivity, usbConnState, VID, PID);
-        
-        // UART Driver Init
-    	m_uartDriver = new CH34xUARTDriver(
- 				(UsbManager) mApplicationContext.getSystemService(Context.USB_SERVICE), m_parentAcitivity,
- 				UART_ACTION_USB_PERMISSION);
+
  		
  		// USB Support Check
 // 		if (!m_uartDriver.UsbFeatureSupported())
@@ -208,20 +187,10 @@ public class DevComm {
  		m_pWriteBuffer = new byte[DevComm.MAX_DATA_LEN];
 		m_pReadBuffer = new byte[DevComm.MAX_DATA_LEN];
 		m_pUARTReadBuf = new byte[DevComm.MAX_DATA_LEN];
-		
-		DispQueue = new DispQueueThread();
-        DispQueue.start();
-        m_SerialPort = new SerialControl();
-		
-		mSerialPortFinder= new SerialPortFinder();
-    	String[] entryValues = mSerialPortFinder.getAllDevicesPath();
+
     	List<String> allDevices = new ArrayList<String>();
     	allDevices.add("USB");
-    	allDevices.add("CH34xUART");
-		for (int i = 0; i < entryValues.length; i++) {
-			allDevices.add(entryValues[i]);
-//			LibDebugManage.WriteLog2(entryValues[i]);
-		}
+
 		ArrayAdapter<String> aspnDevices = new ArrayAdapter<String>(m_parentAcitivity, android.R.layout.simple_spinner_item, allDevices);
 		p_spDevice.setAdapter(aspnDevices);
     }
@@ -231,13 +200,8 @@ public class DevComm {
         m_nConnected = 0;
         m_nUARTReadLen = 0;
 
-        String[] entryValues = mSerialPortFinder.getAllDevicesPath();
         List<String> allDevices = new ArrayList<String>();
         allDevices.add("USB");
-        allDevices.add("CH34xUART");
-        for (int i = 0; i < entryValues.length; i++) {
-            allDevices.add(entryValues[i]);
-        }
         ArrayAdapter<String> aspnDevices = new ArrayAdapter<String>(m_parentAcitivity, android.R.layout.simple_spinner_item, allDevices);
         p_spDevice.setAdapter(aspnDevices);
 
@@ -267,55 +231,6 @@ public class DevComm {
                 return false;
     		m_nConnected = 2;
     	}
-    	else if (p_szDevice == "CH34xUART") // UART
-    	{
-    		if (!m_uartDriver.ResumeUsbList())// ResumeUsbList��������ö��CH34X�豸�Լ�������豸
-			{
-				Toast.makeText(mApplicationContext, "Open UART device failed!", Toast.LENGTH_SHORT).show();
-				m_uartDriver.CloseDevice();
-				return false;
-			}
-    		else
-    		{
-				if (!m_uartDriver.UartInit())
-				{
-					Toast.makeText(mApplicationContext, "Initialize UART device failed!", Toast.LENGTH_SHORT).show();
-					Toast.makeText(mApplicationContext, "Open UART device failed!", Toast.LENGTH_SHORT).show();
-					return false;
-				}
-				
-				if (!m_uartDriver.SetConfig(p_nBaudrate, (byte)8, (byte)1, (byte)0, (byte)0))
-				{
-					Toast.makeText(mApplicationContext, "Configuration UART device failed!", Toast.LENGTH_SHORT).show();
-					Toast.makeText(mApplicationContext, "Open UART device failed!", Toast.LENGTH_SHORT).show();
-					return false;
-				}
-				
-				Toast.makeText(mApplicationContext, "Open UART device success!", Toast.LENGTH_SHORT).show();
-				m_nConnected = 1;
-				m_nUARTReadLen = 0;
-				new UART_ReadThread().start();
-			}
-    	}
-    	else	// ttyUART
-    	{
-    		m_SerialPort.setPort(p_szDevice);
-    		m_SerialPort.setBaudRate(p_nBaudrate);
-    		try
-    		{
-    			m_SerialPort.open();
-    		} catch (SecurityException e) {
-    			Toast.makeText(mApplicationContext, "Open ttyUART device failed!", Toast.LENGTH_SHORT).show();
-                return false;
-    		} catch (IOException e) {
-    			Toast.makeText(mApplicationContext, "Open ttyUART device failed!", Toast.LENGTH_SHORT).show();
-                return false;
-    		} catch (InvalidParameterException e) {
-    			Toast.makeText(mApplicationContext, "Open ttyUART device failed!", Toast.LENGTH_SHORT).show();
-                return false;
-    		}
-    		m_nConnected = 3;
-    	}
 
         return true;
     }
@@ -327,7 +242,6 @@ public class DevComm {
     	}
     	else if (m_nConnected == 1)	// UART
     	{
-    		m_uartDriver.CloseDevice();
     		m_nConnected = 0;
     	}
     	else if (m_nConnected == 2)	// USB
@@ -337,8 +251,6 @@ public class DevComm {
     	}
     	else	// ttyUART
     	{
-    		m_SerialPort.stopSend();
-    		m_SerialPort.close();
     		m_nConnected = 0;
     	}
         return true;
@@ -687,10 +599,7 @@ public class DevComm {
     
     //--------------------------- Send, Receive Communication Packet Functions ---------------------//
     public boolean Send_Command(short p_wCmd)
-    {
-    	if ((m_nConnected == 1) || (m_nConnected == 3))
-    		return UART_SendCommand(p_wCmd);
-    	else if (m_nConnected == 2)
+    {if (m_nConnected == 2)
     		return USB_SendPacket(p_wCmd);
     	else
     		return false;
@@ -698,10 +607,7 @@ public class DevComm {
     /***************************************************************************/
     /***************************************************************************/
     public boolean Send_DataPacket(short p_wCmd)
-    {
-    	if ((m_nConnected == 1) || (m_nConnected == 3))
-    		return UART_SendDataPacket(p_wCmd);
-    	else if (m_nConnected == 2)
+    { if (m_nConnected == 2)
     		return USB_SendDataPacket(p_wCmd);
     	else
     		return false;
@@ -709,10 +615,7 @@ public class DevComm {
     /***************************************************************************/
     /***************************************************************************/
     public boolean Receive_DataPacket(short p_wCmd)
-    {
-    	if ((m_nConnected == 1) || (m_nConnected == 3))
-    		return UART_ReceiveDataPacket(p_wCmd);
-    	else if (m_nConnected == 2)
+    {if (m_nConnected == 2)
     		return USB_ReceiveDataPacket(p_wCmd);
     	else
     		return false;
@@ -1006,269 +909,7 @@ public class DevComm {
     	
     	return true;
     }
-  //------------------------------------------ UART Functions -------------------------------------//
-    public boolean UART_SendCommand(short p_wCmd)
-    {
-    	int	w_nResult = 0;
 
-    	if (m_nConnected == 1)
-    	{
-    		w_nResult = m_uartDriver.WriteData(m_abyPacket, CMD_PACKET_LEN + 2);
-    		if(w_nResult < 0){
-        		return false;
-        	}
-    	}
-    	else if (m_nConnected == 3)
-    	{
-    		byte[] w_pData = new byte[CMD_PACKET_LEN + 2];
-    		System.arraycopy(m_abyPacket, 0, w_pData, 0, CMD_PACKET_LEN + 2);
-    		m_SerialPort.send(w_pData);
-    	}
-
-    	return UART_ReceiveAck(p_wCmd, true);
-    }
-    /***************************************************************************/
-    /***************************************************************************/
-    public  boolean UART_SendCommand2(short wCMD)
-    {
-    	int	w_nResult = 0;
-
-    	if (m_nConnected == 1)
-    	{
-    		w_nResult = m_uartDriver.WriteData(m_abyPacket2, CMD_PACKET_LEN + 2);
-    		if(w_nResult < 0){
-        		return false;
-        	}
-    	}
-    	else if (m_nConnected == 3)
-    	{
-    		byte[] w_pData = new byte[CMD_PACKET_LEN + 2];
-    		System.arraycopy(m_abyPacket2, 0, w_pData, 0, CMD_PACKET_LEN + 2);
-    		m_SerialPort.send(w_pData);
-    	}
-
-    	return true;
-    }
-    /***************************************************************************/
-    /***************************************************************************/
-    public boolean UART_ReceiveAck(short p_wCmd, boolean p_bCmdData)
-    {
-//    	int	w_nResult = 0;
-    	int w_nReadLen = 0;
-    	int w_nTotalLen = CMD_PACKET_LEN + 2;
-    	int w_nTmpLen;
-    	long w_nTime;
-    	int i;
-
-    	w_nTime = System.currentTimeMillis();
-    	
-    	while (w_nReadLen < w_nTotalLen)
-    	{
-//	    	w_nResult = m_uartDriver.ReadData(m_abyPacket, CMD_PACKET_LEN + 2);
-    		if (System.currentTimeMillis() - w_nTime > 10000)
-    		{
-    			m_nUARTReadLen = 0;
-    			return false;
-    		}
-    		
-    		i = 0;
-    		while (m_bBufferHandle)
-    		{
-    			i++;
-    			if (i < 10000)
-    				break;
-    		}
-    		
-    		m_bBufferHandle = true;
-    		if (m_nUARTReadLen <= 0)
-    			continue;
-    		if (w_nTotalLen - w_nReadLen < m_nUARTReadLen)
-    		{
-    			w_nTmpLen = w_nTotalLen - w_nReadLen;
-    			System.arraycopy(m_pUARTReadBuf, 0, m_abyPacket, w_nReadLen, w_nTmpLen);
-	    		w_nReadLen += w_nTmpLen;
-	    		m_nUARTReadLen = m_nUARTReadLen - w_nTmpLen;
-	    		System.arraycopy(m_pUARTReadBuf, w_nTmpLen, m_abyPacketTmp, 0, m_nUARTReadLen);
-	    		System.arraycopy(m_abyPacketTmp, 0, m_pUARTReadBuf, 0, m_nUARTReadLen);
-    		}
-    		else
-    		{
-    			System.arraycopy(m_pUARTReadBuf, 0, m_abyPacket, w_nReadLen, m_nUARTReadLen);
-	    		w_nReadLen += m_nUARTReadLen;
-	    		m_nUARTReadLen = 0;
-    		}
-    		m_bBufferHandle = false;
-    	}
-    	
-    	if (p_bCmdData)
-    		return CheckReceive((short)RCM_PREFIX_CODE, p_wCmd);
-    	else
-    		return CheckReceive((short)RCM_DATA_PREFIX_CODE, p_wCmd);
-    }
-    /***************************************************************************/
-    /***************************************************************************/
-    public boolean UART_ReceiveAck2(short p_wCmd)
-    {
-//    	int	w_nResult = 0;
-    	int w_nReadLen = 0;
-    	int w_nTotalLen = CMD_PACKET_LEN + 2;
-    	int w_nTmpLen;
-    	long w_nTime;
-
-    	w_nTime = System.currentTimeMillis();
-
-    	while (w_nReadLen < w_nTotalLen)
-    	{
-//	    	w_nResult = m_uartDriver.ReadData(m_abyPacket2, CMD_PACKET_LEN + 2);
-    		if (System.currentTimeMillis() - w_nTime > 10000)
-    		{
-    			m_nUARTReadLen = 0;
-    			return false;
-    		}
-    		
-    		if (m_nUARTReadLen <= 0)
-    			continue;
-    		if (w_nTotalLen - w_nReadLen < m_nUARTReadLen)
-    		{
-    			w_nTmpLen = w_nTotalLen - w_nReadLen;
-    			System.arraycopy(m_pUARTReadBuf, 0, m_abyPacket2, w_nReadLen, w_nTmpLen);
-	    		w_nReadLen += w_nTmpLen;
-	    		m_nUARTReadLen = m_nUARTReadLen - w_nTmpLen;
-	    		System.arraycopy(m_pUARTReadBuf, w_nTmpLen, m_abyPacketTmp, 0, m_nUARTReadLen);
-	    		System.arraycopy(m_abyPacketTmp, 0, m_pUARTReadBuf, 0, m_nUARTReadLen);
-    		}
-    		else
-    		{
-	    		System.arraycopy(m_pUARTReadBuf, 0, m_abyPacket2, w_nReadLen, m_nUARTReadLen);
-		    	w_nReadLen += m_nUARTReadLen;
-		    	m_nUARTReadLen = 0;
-    		}
-    	}
-    	
-    	return true;
-    }
-    /***************************************************************************/
-    /***************************************************************************/
-    public boolean UART_ReceiveDataAck(short p_wCmd)
-    {
-    	if (!UART_ReadDataN(m_abyPacket, 0, 6))
-    		return false;
-
-    	if (!UART_ReadDataN(m_abyPacket, 6, GetDataLen() + 2))
-    		return false;
-
-    	return CheckReceive((short)RCM_DATA_PREFIX_CODE, p_wCmd);
-    }
-    /***************************************************************************/
-    /***************************************************************************/
-    public boolean UART_SendDataPacket(short p_wCmd)
-    {
-    	int		w_nSendCnt = 0;
-
-    	if (m_nConnected == 1)
-    	{
-	    	w_nSendCnt = m_uartDriver.WriteData(m_abyPacket, GetDataLen() + 8);
-	    	if(w_nSendCnt < 0)
-	    		return false;
-    	}
-    	else if (m_nConnected == 3)
-    	{
-    		int w_nLen = GetDataLen() + 8;
-    		byte[] w_pData = new byte[w_nLen];
-    		System.arraycopy(m_abyPacket, 0, w_pData, 0, w_nLen);
-    		m_SerialPort.send(w_pData);
-    	}
-    	
-    	return UART_ReceiveDataAck(p_wCmd);
-    }
-    /***************************************************************************/
-    /***************************************************************************/
-    public boolean UART_ReceiveDataPacket(short p_wCmd)
-    {
-    	return UART_ReceiveDataAck(p_wCmd);
-    }
-    /***************************************************************************/
-    /***************************************************************************/
-    public boolean UART_ReceiveData(short p_wCmd, int p_nDataLen, byte[] p_pBuffer)
-    {
-    	int		w_nReceivedCnt;
-    	int		w_wPacketDataLen = 0;
-
-    	for (w_nReceivedCnt = 0; w_nReceivedCnt < p_nDataLen; w_nReceivedCnt += w_wPacketDataLen)
-    	{
-    		w_wPacketDataLen = p_nDataLen - w_nReceivedCnt;
-    		if (w_wPacketDataLen > MAX_DATA_LEN) w_wPacketDataLen = MAX_DATA_LEN;
-    		if (UART_ReceiveDataPacket(p_wCmd) == false)
-    			return false;
-    		System.arraycopy(m_abyPacket, 8, p_pBuffer, w_nReceivedCnt, GetDataLen() + 4);
-    	}
-    	return true;
-    }
-    /***************************************************************************/
-    /***************************************************************************/
-    boolean UART_ReadDataN(byte[] p_pData, int p_nStart, int p_nLen)
-    {
-//    	int		w_nAckCnt = 0;
-    	int		w_nRecvLen, w_nTotalRecvLen;
-    	int 	w_nTmpLen;
-    	long	w_nTime;
-    	
-    	w_nRecvLen = p_nLen;
-    	w_nTotalRecvLen = 0;
-    	w_nTime = System.currentTimeMillis();
-    	
-    	while(w_nTotalRecvLen < p_nLen )
-    	{
-//    		w_nAckCnt = m_uartDriver.ReadData(m_abyPacketTmp, w_nRecvLen);
-//    		if (w_nAckCnt < 0)
-//    			return false;
-    		if (System.currentTimeMillis() - w_nTime > 10000)
-    		{
-    			m_nUARTReadLen = 0;
-    			return false;
-    		}
-    		
-	    	if (m_nUARTReadLen <= 0)
-    			continue;
-    		
-	    	if (p_nLen - w_nTotalRecvLen < m_nUARTReadLen)
-    		{
-    			w_nTmpLen = p_nLen - w_nTotalRecvLen;
-    			System.arraycopy(m_pUARTReadBuf, 0, p_pData, p_nStart + w_nTotalRecvLen, w_nTmpLen);
-    			w_nRecvLen = w_nRecvLen - w_nTmpLen;
-	    		w_nTotalRecvLen = w_nTotalRecvLen + w_nTmpLen;
-	    		m_nUARTReadLen = m_nUARTReadLen - w_nTmpLen;
-	    		System.arraycopy(m_pUARTReadBuf, w_nTmpLen, m_abyPacketTmp, 0, m_nUARTReadLen);
-	    		System.arraycopy(m_abyPacketTmp, 0, m_pUARTReadBuf, 0, m_nUARTReadLen);
-    		}
-    		else
-    		{
-	    		System.arraycopy(m_pUARTReadBuf, 0, p_pData, p_nStart + w_nTotalRecvLen, m_nUARTReadLen);
-	    		w_nRecvLen = w_nRecvLen - m_nUARTReadLen;
-	    		w_nTotalRecvLen = w_nTotalRecvLen + m_nUARTReadLen;
-	    		m_nUARTReadLen = 0;
-    		}
-    	}
-    	
-    	return true;
-    }
-    /***************************************************************************/
-    /***************************************************************************/
-    public class UART_ReadThread extends Thread {
-
-		public void run() {
-
-			while (true) {
-				if (m_nConnected != 1)
-					break;
-				if (m_nUARTReadLen > 0)
-					continue;
-
-				m_nUARTReadLen = m_uartDriver.ReadData(m_pUARTReadBuf, DevComm.MAX_DATA_LEN);
-			}
-			
-		}
-	}
     /***************************************************************************/
     /***************************************************************************/
     public boolean memcmp(byte[] p1, byte[] p2, int nLen)
@@ -1310,66 +951,5 @@ public class DevComm {
     {
     	return (byte)(((s & 0xFF00) >> 8) & 0xFF);
     }
-    
-    //----------------------------------------------------���ڿ�����
-    private class SerialControl extends SerialHelper{
 
-//		public SerialControl(String sPort, String sBaudRate){
-//			super(sPort, sBaudRate);
-//		}
-		public SerialControl(){
-		}
-
-		@Override
-		protected void onDataReceived(final ComBean ComRecData)
-		{
-			//���ݽ�����������ʱ��������̣�����Ῠ��,���ܺ�6410����ʾ�����й�
-			//ֱ��ˢ����ʾ��������������ʱ���������ԣ�����������ʾͬ����
-			//���̶߳�ʱˢ����ʾ���Ի�ý���������ʾЧ�������ǽ��������ٶȿ�����ʾ�ٶ�ʱ����ʾ���ͺ�
-			//����Ч�����-_-���̶߳�ʱˢ���Ժ�һЩ��
-			DispQueue.AddQueue(ComRecData);//�̶߳�ʱˢ����ʾ(�Ƽ�)
-			/*
-			runOnUiThread(new Runnable()//ֱ��ˢ����ʾ
-			{
-				public void run()
-				{
-					DispRecData(ComRecData);
-				}
-			});*/
-		}
-    }
-    //----------------------------------------------------ˢ����ʾ�߳�
-    private class DispQueueThread extends Thread{
-		private Queue<ComBean> QueueList = new LinkedList<ComBean>(); 
-		@Override
-		public void run() {
-			super.run();
-			while(!isInterrupted()) {
-				int i;
-		        while(true)
-		        {
-		        	final ComBean ComData;
-		        	if ((ComData=QueueList.poll())==null)
-		        		break;
-		        	
-		        	i = 0;
-		        	while (m_bBufferHandle)
-		        	{
-		        		i++;
-		        		if (i > 10000)
-		        			break;
-		        	}
-		        	m_bBufferHandle = true;
-		        	System.arraycopy(ComData.bRec, 0, m_pUARTReadBuf, m_nUARTReadLen, ComData.nSize);
-		        	m_nUARTReadLen = m_nUARTReadLen + ComData.nSize;
-		        	m_bBufferHandle = false;
-//		        	break;
-				}
-			}
-		}
-
-		public synchronized void AddQueue(ComBean ComData){
-			QueueList.add(ComData);
-		}
-	}
 }
