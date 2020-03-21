@@ -401,24 +401,24 @@ public class UsbController {
             System.arraycopy(pBuf, i * m_nEPOutSize, m_abyTransferBuf, 0, r);
 
             w_nRet = m_usbConn.bulkTransfer(m_epOUT, m_abyTransferBuf, r, nTimeOut);
-            Log.d("usb-data", String.format("cmd:%2d:%2d : %02X%02X %02X%02X %02X%02X %02X%02X %02X%02X %02X%02X %02X%02X %02X%02X %02X%02X %02X%02X %02X%02X %02X%02X %02X%02X %02X%02X %02X%02X %02X%02X ",
+            Log.d("usb-data", String.format("cmd:%2d:%2d : %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X",
                     r, w_nRet,
-                    m_abyTransferBuf[1],   m_abyTransferBuf[0],
-                    m_abyTransferBuf[3],   m_abyTransferBuf[2],
-                    m_abyTransferBuf[5],   m_abyTransferBuf[4],
-                    m_abyTransferBuf[7],   m_abyTransferBuf[6],
-                    m_abyTransferBuf[9],   m_abyTransferBuf[8],
-                    m_abyTransferBuf[11],  m_abyTransferBuf[10],
-                    m_abyTransferBuf[13],  m_abyTransferBuf[12],
-                    m_abyTransferBuf[15],  m_abyTransferBuf[14],
-                    m_abyTransferBuf[17],  m_abyTransferBuf[16],
-                    m_abyTransferBuf[19],  m_abyTransferBuf[18],
-                    m_abyTransferBuf[21],  m_abyTransferBuf[20],
-                    m_abyTransferBuf[23],  m_abyTransferBuf[22],
-                    m_abyTransferBuf[25],  m_abyTransferBuf[24],
-                    m_abyTransferBuf[27],  m_abyTransferBuf[26],
-                    m_abyTransferBuf[29],  m_abyTransferBuf[28],
-                    m_abyTransferBuf[31],  m_abyTransferBuf[30]
+                      m_abyTransferBuf[0],m_abyTransferBuf[1],
+                      m_abyTransferBuf[2],m_abyTransferBuf[3],
+                      m_abyTransferBuf[4],m_abyTransferBuf[5],
+                      m_abyTransferBuf[6],m_abyTransferBuf[7],
+                      m_abyTransferBuf[8],m_abyTransferBuf[9],
+                      m_abyTransferBuf[10],m_abyTransferBuf[11],
+                      m_abyTransferBuf[12],m_abyTransferBuf[13],
+                      m_abyTransferBuf[14],m_abyTransferBuf[15],
+                      m_abyTransferBuf[16],m_abyTransferBuf[17],
+                      m_abyTransferBuf[18],m_abyTransferBuf[19],
+                      m_abyTransferBuf[20],m_abyTransferBuf[21],
+                      m_abyTransferBuf[22],m_abyTransferBuf[23],
+                      m_abyTransferBuf[24],m_abyTransferBuf[25],
+                      m_abyTransferBuf[26],m_abyTransferBuf[27],
+                      m_abyTransferBuf[28],m_abyTransferBuf[29],
+                      m_abyTransferBuf[30],m_abyTransferBuf[31]
             ));
 
             if (w_nRet != r)
@@ -454,24 +454,24 @@ public class UsbController {
 
         if (r > 0) {
             w_nRet = m_usbConn.bulkTransfer(m_epIN, m_abyTransferBuf, r, nTimeOut);
-            Log.d("usb-data", String.format("res:%2d:%2d : %02X%02X %02X%02X %02X%02X %02X%02X %02X%02X %02X%02X %02X%02X %02X%02X %02X%02X %02X%02X %02X%02X %02X%02X %02X%02X %02X%02X %02X%02X %02X%02X ",
+            Log.d("usb-data", String.format("res:%2d:%2d : %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X",
                     r, w_nRet,
-                    m_abyTransferBuf[1],   m_abyTransferBuf[0],
-                    m_abyTransferBuf[3],   m_abyTransferBuf[2],
-                    m_abyTransferBuf[5],   m_abyTransferBuf[4],
-                    m_abyTransferBuf[7],   m_abyTransferBuf[6],
-                    m_abyTransferBuf[9],   m_abyTransferBuf[8],
-                    m_abyTransferBuf[11],  m_abyTransferBuf[10],
-                    m_abyTransferBuf[13],  m_abyTransferBuf[12],
-                    m_abyTransferBuf[15],  m_abyTransferBuf[14],
-                    m_abyTransferBuf[17],  m_abyTransferBuf[16],
-                    m_abyTransferBuf[19],  m_abyTransferBuf[18],
-                    m_abyTransferBuf[21],  m_abyTransferBuf[20],
-                    m_abyTransferBuf[23],  m_abyTransferBuf[22],
-                    m_abyTransferBuf[25],  m_abyTransferBuf[24],
-                    m_abyTransferBuf[27],  m_abyTransferBuf[26],
-                    m_abyTransferBuf[29],  m_abyTransferBuf[28],
-                    m_abyTransferBuf[31],  m_abyTransferBuf[30]
+                    m_abyTransferBuf[0],m_abyTransferBuf[1],
+                    m_abyTransferBuf[2],m_abyTransferBuf[3],
+                    m_abyTransferBuf[4],m_abyTransferBuf[5],
+                    m_abyTransferBuf[6],m_abyTransferBuf[7],
+                    m_abyTransferBuf[8],m_abyTransferBuf[9],
+                    m_abyTransferBuf[10],m_abyTransferBuf[11],
+                    m_abyTransferBuf[12],m_abyTransferBuf[13],
+                    m_abyTransferBuf[14],m_abyTransferBuf[15],
+                    m_abyTransferBuf[16],m_abyTransferBuf[17],
+                    m_abyTransferBuf[18],m_abyTransferBuf[19],
+                    m_abyTransferBuf[20],m_abyTransferBuf[21],
+                    m_abyTransferBuf[22],m_abyTransferBuf[23],
+                    m_abyTransferBuf[24],m_abyTransferBuf[25],
+                    m_abyTransferBuf[26],m_abyTransferBuf[27],
+                    m_abyTransferBuf[28],m_abyTransferBuf[29],
+                    m_abyTransferBuf[30],m_abyTransferBuf[31]
             ));
             if (w_nRet != r) {
                 return false;

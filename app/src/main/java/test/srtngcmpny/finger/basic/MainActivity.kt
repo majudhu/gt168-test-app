@@ -1,5 +1,9 @@
 package test.srtngcmpny.finger.basic
 
+import android.content.Context
+import android.hardware.usb.UsbConstants
+import android.hardware.usb.UsbInterface
+import android.hardware.usb.UsbManager
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View
@@ -8,13 +12,16 @@ import android.widget.*
 import android.widget.AdapterView.OnItemSelectedListener
 import androidx.appcompat.app.AppCompatActivity
 import com.szadst.szoemhost_lib.DevComm
+import com.szadst.szoemhost_lib.DevComm.*
 import com.szadst.szoemhost_lib.SZOEMHost_Lib
+import com.szadst.szoemhost_lib.UsbController
 
 class MainActivity : AppCompatActivity(), View.OnClickListener {
     var m_nUserID = 0
     var m_strPost: String? = null
     var m_nBaudrate = 0
     var m_szDevice: String? = null
+
     // Controls
     var m_btnOpenDevice: Button? = null
     var m_btnCloseDevice: Button? = null
@@ -66,7 +73,26 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     override fun onClick(view: View) {
-        if (view === m_btnOpenDevice) OnOpenDeviceBtn() else if (view === m_btnCloseDevice) OnCloseDeviceBtn() else if (view === m_btnEnroll) OnEnrollBtn() else if (view === m_btnVerify) OnVerifyBtn() else if (view === m_btnIdentify) OnIdentifyBtn() else if (view === m_btnIdentifyFree) OnIdentifyFreeBtn() else if (view === m_btnCaptureImage) OnUpImage() else if (view === m_btnCancel) OnCancelBtn() else if (view === m_btnGetUserCount) OnGetUserCount() else if (view === m_btnGetEmptyID) OnGetEmptyID() else if (view === m_btnDeleteID) OnDeleteIDBtn() else if (view === m_btnDeleteAll) OnDeleteAllBtn() else if (view === m_btnReadTemplate) OnReadTemplateBtn() else if (view === m_btnWriteTemplate) OnWriteTemplateBtn() else if (view === m_btnGetFWVer) OnGetFwVersion() else if (view === m_btnSetDevPass) OnSetDevPass() else if (view === m_btnVerifyPass) OnVerifyPassBtn() else if (view === m_btnVerifyImage) OnVerifyWithImage() else if (view === m_btnIdentifyImage) OnIdentifyWithImage()
+        when (view) {
+            m_btnOpenDevice -> OnOpenDeviceBtn()
+            m_btnCloseDevice -> OnCloseDeviceBtn()
+            m_btnEnroll -> OnEnrollBtn()
+            m_btnVerify -> OnVerifyBtn()
+            m_btnIdentify -> OnIdentifyBtn()
+            m_btnIdentifyFree -> OnIdentifyFreeBtn()
+            m_btnCaptureImage -> OnUpImage()
+            m_btnCancel -> OnCancelBtn()
+            m_btnGetUserCount -> OnGetUserCount()
+            m_btnGetEmptyID -> OnGetEmptyID()
+            m_btnDeleteID -> OnDeleteIDBtn()
+            m_btnDeleteAll -> OnDeleteAllBtn()
+            m_btnReadTemplate -> OnReadTemplateBtn()
+            m_btnWriteTemplate -> OnWriteTemplateBtn()
+            m_btnGetFWVer -> OnGetFwVersion()
+            m_btnSetDevPass -> OnSetDevPass()
+            m_btnVerifyPass -> OnVerifyPassBtn()
+            m_btnVerifyImage -> OnVerifyWithImage()
+        }
     }
 
     fun InitWidget() {
@@ -419,5 +445,37 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     companion object {
         private var m_szHost: SZOEMHost_Lib? = null
+    }
+
+    fun onTestButton(view: View) {
+        Thread(Runnable {
+            val res = ByteArray(32)
+            val usbManager = applicationContext.getSystemService(Context.USB_SERVICE) as UsbManager
+            val device = usbManager.deviceList.values.firstOrNull { it.vendorId == 0x2009 && it.productId == 0x7638 }!!
+            val usbInterface = device.getInterface(0)
+            val endPoints = (0 until usbInterface.endpointCount)
+                    .map { usbInterface.getEndpoint(it) }
+                    .filter { it.type == UsbConstants.USB_ENDPOINT_XFER_BULK }
+            val inEndPoint = endPoints.firstOrNull { it.direction == UsbConstants.USB_DIR_IN }!!
+            val outEndpoint = endPoints.firstOrNull { it.direction == UsbConstants.USB_DIR_OUT }!!
+            val maxInSize = inEndPoint.maxPacketSize
+            val maxOutSize = outEndpoint.maxPacketSize
+            val cbw = byteArrayOf(0x55, 0x53, 0x42, 0x43, 0x28, 0x2B, 0x18, 0x89.toByte(), 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A)
+            val cmd = byteArrayOf(0x55, 0xAA.toByte(), 0x50, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x50, 0x01)
+            val usbDeviceConnection = usbManager.openDevice(device)
+            usbDeviceConnection.claimInterface(usbInterface, true)
+
+            usbDeviceConnection.bulkTransfer(outEndpoint, cbw, 31, SCSI_TIMEOUT)
+            usbDeviceConnection.bulkTransfer(outEndpoint, cmd, 24, SCSI_TIMEOUT)
+            usbDeviceConnection.bulkTransfer(inEndPoint, res, 13, SCSI_TIMEOUT)
+
+            usbDeviceConnection.bulkTransfer(outEndpoint, cbw, 31, SCSI_TIMEOUT)
+            usbDeviceConnection.bulkTransfer(outEndpoint, res, 24, SCSI_TIMEOUT)
+            usbDeviceConnection.bulkTransfer(inEndPoint, ByteArray(32), 13, SCSI_TIMEOUT)
+
+            usbDeviceConnection.releaseInterface(usbInterface)
+        }).start()
+
+
     }
 }
