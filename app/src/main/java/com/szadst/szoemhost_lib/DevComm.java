@@ -2,14 +2,9 @@ package com.szadst.szoemhost_lib;
 
 import android.app.Activity;
 import android.content.Context;
-import android.hardware.usb.UsbManager;
 import android.os.SystemClock;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
-import android.widget.Toast;
-
-import java.io.IOException;
-import java.security.InvalidParameterException;
 import java.util.*;
 
 

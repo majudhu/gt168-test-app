@@ -15,8 +15,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.ImageView;
 
-import com.szadst.szoemhost_lib.DevComm;
-import com.szadst.szoemhost_lib.IUsbConnState;
 
 public class SZOEMHost_Lib {
 
