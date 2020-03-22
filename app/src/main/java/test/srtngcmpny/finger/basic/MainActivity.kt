@@ -5,6 +5,7 @@ import android.hardware.usb.UsbConstants
 import android.hardware.usb.UsbInterface
 import android.hardware.usb.UsbManager
 import android.os.Bundle
+import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
@@ -449,7 +450,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     fun onTestButton(view: View) {
         Thread(Runnable {
-            val res = ByteArray(32)
+            val res = ByteArray(64)
+            val csw = ByteArray(64)
             val usbManager = applicationContext.getSystemService(Context.USB_SERVICE) as UsbManager
             val device = usbManager.deviceList.values.firstOrNull { it.vendorId == 0x2009 && it.productId == 0x7638 }!!
             val usbInterface = device.getInterface(0)
@@ -460,20 +462,28 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             val outEndpoint = endPoints.firstOrNull { it.direction == UsbConstants.USB_DIR_OUT }!!
             val maxInSize = inEndPoint.maxPacketSize
             val maxOutSize = outEndpoint.maxPacketSize
-            val cbw = byteArrayOf(0x55, 0x53, 0x42, 0x43, 0x28, 0x2B, 0x18, 0x89.toByte(), 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A)
-            val cmd = byteArrayOf(0x55, 0xAA.toByte(), 0x50, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x50, 0x01)
+            val cbw = byteArrayOf(0x55, 0x53, 0x42, 0x43, 0x28, 0x2B, 0x18, 0x89.toByte(), 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A, 0xEF.toByte(), 0x11, 0x00, 0x00, 0x18, *ByteArray(11))
+            val cmd = byteArrayOf(0x55, 0xAA.toByte(), 0x50, 0x01, *ByteArray(18), 0x50, 0x01)
             val usbDeviceConnection = usbManager.openDevice(device)
             usbDeviceConnection.claimInterface(usbInterface, true)
 
-            usbDeviceConnection.bulkTransfer(outEndpoint, cbw, 31, SCSI_TIMEOUT)
-            usbDeviceConnection.bulkTransfer(outEndpoint, cmd, 24, SCSI_TIMEOUT)
-            usbDeviceConnection.bulkTransfer(inEndPoint, res, 13, SCSI_TIMEOUT)
+            val r1 = usbDeviceConnection.bulkTransfer(outEndpoint, cbw, 31, SCSI_TIMEOUT)
+            Thread.sleep(250)
+            val r2 = usbDeviceConnection.bulkTransfer(outEndpoint, cmd, 24, SCSI_TIMEOUT)
+            Thread.sleep(250)
+            val r3 = usbDeviceConnection.bulkTransfer(inEndPoint, csw, 13, SCSI_TIMEOUT)
+            Thread.sleep(250)
+            cbw[0x0c] = 0x80.toByte()
+            cbw[0x10] = 0x12.toByte()
+            val r4 = usbDeviceConnection.bulkTransfer(outEndpoint, cbw, 31, SCSI_TIMEOUT)
+            Thread.sleep(250)
+            val r5 = usbDeviceConnection.bulkTransfer(inEndPoint, res, 24, SCSI_TIMEOUT)
+            Thread.sleep(250)
+            val r6 = usbDeviceConnection.bulkTransfer(inEndPoint, csw, 13, SCSI_TIMEOUT)
 
-            usbDeviceConnection.bulkTransfer(outEndpoint, cbw, 31, SCSI_TIMEOUT)
-            usbDeviceConnection.bulkTransfer(outEndpoint, res, 24, SCSI_TIMEOUT)
-            usbDeviceConnection.bulkTransfer(inEndPoint, ByteArray(32), 13, SCSI_TIMEOUT)
-
-            usbDeviceConnection.releaseInterface(usbInterface)
+            val r7 = usbDeviceConnection.releaseInterface(usbInterface)
+            usbDeviceConnection.close()
+            Log.d("r", "$r1, $r2, $r3, $r4, $r5, $r6, $r7")
         }).start()
 
 
